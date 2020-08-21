@@ -1,0 +1,19 @@
+experiment:
+  # if an inference_ckpt is provided, model-based dataset pruning will be enabled using the specified checkpoint
+  # inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200816114940/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
+  db_functionality_enabled: True
+  dataprep_only: True
+  debug:
+    debug_enabled: True
+    use_debug_dataset: False
+data_source:
+  # db_conf must be explictly specified only in dev mode or if db_conf is in a non-default location
+  # db_conf: "/home/speediedan/repos/edification/deep_classiflie_db_feat/deep_classiflie_db.yaml"
+  model_filter_topk: 20
+  filter_w_embed_cache: False
+  # safest way to build a new dataset is to verify backup of the previous one and remove the relevant cache softlink
+  # (rather than override with "rebuild_dataset: True")
+  skip_db_refresh: False
+  # to update metadata only, will not load datasets (depends on db_functionality_enabled=True)
+  update_ds_db_metadata_only: False
+

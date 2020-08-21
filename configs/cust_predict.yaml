@@ -1,0 +1,10 @@
+experiment:
+  inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200816114940/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
+  predict_only: True
+  debug:
+    debug_enabled: False
+data_source:
+  skip_db_refresh: True
+inference:
+  interpret_preds: True
+  purge_intermediate_rpt_files: False # default is True, left here for debugging convenience

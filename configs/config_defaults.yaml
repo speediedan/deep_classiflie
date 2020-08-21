@@ -1,0 +1,136 @@
+experiment:
+  db_functionality_enabled: False
+  dataprep_only:  False
+  inference_ckpt: ""
+  predict_only: False # set to False to run inference on test set, irrelevant for report generation.
+  tweetbot:
+    enabled: False
+    thread_latency: 900
+    publish: False
+    purge_intermediate_reports: False
+    non_twitter_update_freq_multiple: 5
+    dcbot_poll_interval: 180
+  debug:
+    debug_enabled: False
+    use_debug_dataset: False
+    log_model_mem_reports: False
+  dirs:
+    base_dir: "" # defaults to $HOME
+    experiments_base_dir: "" # defaults to {base_dir}/experiments
+    raw_data_dir: "" # defaults to {base_dir}/datasets
+    # arc_data_dir: "" # not created by default. {raw_data_dir}/arc/{constants.APP_INSTANCE}
+    tmp_data_dir: "" # defaults to {raw_data_dir}/temp/{constants.APP_NAME}
+    model_cache_dir: "" # defaults to {raw_data_dir}/model_cache/{constants.APP_NAME}
+    dcbot_log_dir: "" # defaults to {base_dir}/experiments/dcbot
+    rpt_arc_dir: "" # defaults to {base_dir}/repos/{constants.APP_NAME}_history
+data_source:
+  db_conf: "" # defaults to deep_classiflie_db repo base, inferred from deep_classiflie location unless in dev mode
+  filter_w_embed_cache: False
+  model_filter_topk: 10
+  skip_db_refresh: False
+  update_ds_db_metadata_only: False
+  max_seq_length: 256
+  db_fetch_size: 5
+  db_commit_freq: 500
+  rebuild_dataset: False
+  train_batch_size: 16
+  val_batch_size: 16
+  test_batch_size: 10
+  class_balancing_strategy: "oversampling"
+  converge_distributions: True
+  sampling_weights: [0.5, 0.5]
+  class_labels: ['True', 'False']
+  primary_ds_structure:
+    train_ratio: 0.8
+    val_ratio: 0.1
+    test_ratio: 0.1
+model:
+  base_ckpt: "albert-base-v2-pytorch_model.bin"
+  sp_model: "albert-base-v2"
+  strip_prefix: "albert"
+  attention_probs_dropout_prob: 0.1
+  finetuning_task: null
+  hidden_act: "gelu"
+  hidden_dropout_prob: 0.1
+  hidden_size: 768
+  initializer_range: 0.02
+  ctxt_init_range: 0.002
+  intermediate_size: 3072
+  embedding_size: 128
+  is_decoder: False
+  layer_norm_eps: 1e-12
+  max_position_embeddings: 512
+  num_attention_heads: 12
+  num_hidden_layers: 12
+  num_hidden_groups: 1
+  net_structure_type: 0
+  layers_to_keep: []
+  gap_size: 0
+  num_memory_blocks: 0
+  inner_group_num: 1
+  down_scale_factor: 1
+  type_vocab_size: 2
+  num_labels: 1
+  output_attentions: False
+  output_hidden_states: False
+  output_past: True
+  pruned_heads: {}
+  torchscript: False
+  use_bfloat16: False
+  vocab_size: 30000
+trainer:
+  epochs: 2000
+  verbose: 1
+  workers: 1
+  seed: 1
+  build_swa_from_ckpts: []
+  restart_training_ckpt: ""
+  add_summary: False
+  fp16: True
+  fp16_opt_level: "O1"
+  checkpoint_freq: 1
+  keep_best_n_checkpoints: 10
+  label_smoothing_enabled: True
+  smoothing: 0.17
+  histogram_vars: []
+  dump_model_thaw_sched_only: False
+  fine_tune_scheduler:
+    max_depth: ""
+    thaw_schedule: ""
+    base_max_lr: 1e-5
+    keep_ckpts_global: True
+  earlystopping:
+    patience: 4
+    monitor_metric: "val_loss"
+  optimizer_params:
+    weight_decay: 1e-5
+    learning_rate: 1e-4
+    adam_epsilon: 1e-7
+    init_lr_cycle_period: 3
+    lr_cycle_mult_fact: 2
+    min_lr: 5e-6
+    max_grad_norm: 1.0
+    amsgrad: False
+    swa_mode: "best"
+    last_swa_snaps: 5
+    warmup_epochs: 1
+inference:
+  report_mode: False
+  update_perf_caches_only: False # updates perf caches only using latest report, doesn't create a new report
+  model_report_type: "all" # as of 2020.07.09, only one report type exists, but this remains the default
+  rebuild_stmt_cache: False # set True to (re)build statement cache (report_mode must also be True)
+  rebuild_perf_cache: False # set True to (re)build perf cache (report_mode must also be True)
+  rebuild_pred_explorer: False # set True to (re)build pred_explorer widget (instead of running reports) (report_mode must also be True)
+  rebuild_pred_exp_stmt_cache: False
+  rebuild_perf_explorer: False # set True to (re)build perf_explorer widget (instead of running reports) (report_mode must also be True)
+  rebuild_perf_exp_cache: False
+  interpret_preds: False
+  sample_predictions: 2
+  interpret_batch_size: 10
+  tweet_pub_conf_threshold: 0.77
+  nontweet_pub_conf_threshold: 0.64 #.96
+  trumap_topk: 5
+  num_interpret_steps: 500
+  debug_baselines: False
+  purge_intermediate_rpt_files: True
+  rpt_hist_retention_days: 7

@@ -1,0 +1,12 @@
+experiment:
+  db_functionality_enabled: True # must set to True to generate reports, run dctweetbot, among other functions
+  # provide the generated swa checkpoint below
+  inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200816114940/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt" # note build_swa_from_ckpts will be ignored if inference_ckpt is present
+  debug:
+    debug_enabled: False
+data_source:
+  skip_db_refresh: True
+inference:
+  report_mode: True  # set to true to enable report generation
+  rebuild_perf_cache: True # set True to (re)build perf cache (report_mode must also be True)
+  rebuild_stmt_cache: True  # set True to (re)build statement cache (report_mode must also be True)

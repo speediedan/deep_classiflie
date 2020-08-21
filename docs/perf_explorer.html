@@ -1,0 +1,23 @@
+---
+layout: default
+title: Deep Classiflie Model Performance Explorer
+permalink: /perf_explorer
+---
+{% include bokeh_viz/perf_explorer_script.html %}
+<div class="outer_container">
+    <div class="perf_exp_temporal">
+        <div class="box cmatrix_title">Temporal Confusion Matrices</div>
+            <!--TODO: Add title div for temporal confusion matrices-->
+        {% include bokeh_viz/temporal_tabs_tags.html %}
+    </div>
+    <div class="perf_exp_conf">
+        <div class="box cmatrix_title">Confusion Matrices by Percentile Confidence Bucket<sup id="a0" class="small"><a href="#f0">[0]</a></sup></div>
+        <!--TODO: Add title div for conf confusion matrices-->
+        {% include bokeh_viz/conf_tabs_tags.html %}
+    </div>
+</div>
+<div class="footnotes">
+    <ol>
+        <li id="f0"> <span class="fnum">[0]</span> Note nontweets/tweets are bucketed into 25/10 confidence buckets respectively. The tooltip represents the percentile confidence ceiling of a given bucket along with other bucket stats. See <a href="{{ site.about_url }}#current-performance">relevant about page section</a> for additional context <a href="#a0">↩</a></li>
+    </ol>
+</div>

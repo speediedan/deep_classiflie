@@ -1,0 +1,85 @@
+experiment:
+  tweetbot:
+    sql:
+      stmts_to_analyze_sql: "select * from stmts_to_analyze"
+      tweets_to_analyze_sql: "select * from tweets_to_analyze"
+      get_bot_creds_sql: >-
+        select consumer_key, consumer_secret, access_token, access_secret from dcbot_creds
+      tweets_analyzed_pub_sql: >-
+        insert ignore into tweets_analyzed_published
+        (dc_tid, thread_id, arc_report_name, media_id, t_date)
+        VALUES (%s, %s, %s, %s, CURRENT_TIMESTAMP())
+      stmts_analyzed_pub_sql: >-
+        insert ignore into stmts_analyzed_published
+        (dc_tid, tid, sid, arc_report_name, media_id, t_date)
+        VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP())
+      tweets_analyzed_nopub_sql: >-
+        insert ignore into tweets_analyzed_notpublished
+        (thread_id, arc_report_name, t_date)
+        VALUES (%s, %s, CURRENT_TIMESTAMP())
+      stmts_analyzed_nopub_sql: >-
+        insert ignore into stmts_analyzed_notpublished
+        (tid, sid, arc_report_name, t_date)
+        VALUES (%s, %s, %s, CURRENT_TIMESTAMP())
+data_source:
+  sql:
+    debug:
+      class_sql:
+        'True': "select statement_text, s_type, label from truths_tiny where s_date between"
+        'False': "select statement_text, s_type, label from falsehoods_tiny where s_date between"
+      class_card_sql:
+        'True': "select count(*) from truths_tiny"
+        'False': "select count(*) from falsehoods_tiny"
+      class_bound_card_sql:
+        'True': "select count(*) from truths_tiny where s_date between"
+        'False': "select count(*) from falsehoods_tiny where s_date between"
+      dist_dt_bound_sql: "select min(s_date) from falsehood_date_driver_tiny where c_dist >="
+    primary:
+      class_sql:
+        'True': "select statement_text, s_type, label from pt_converged_dt_truths where s_date between"
+        'False': "select statement_text, s_type, label from pt_converged_dt_falsehoods where s_date between"
+      class_card_sql:
+        'True': "select count(*) from pt_converged_dt_truths"
+        'False': "select count(*) from pt_converged_dt_falsehoods"
+      class_bound_card_sql:
+        'True': "select count(*) from pt_converged_dt_truths where s_date between"
+        'False': "select count(*) from pt_converged_dt_falsehoods where s_date between"
+    converge_class_dist: "select * from target_dist"
+    converge_dist_subclasses: "select stext, stype, sdate from all_truth_statements_tmp where swc ="
+    converge_dist_dt_bound_sql: "select min(s_date) from falsehood_date_driver where c_dist >="
+    converge_truths: "insert into pt_converged_truths (statement_text, stype, sdate) values (%s, %s, %s)"
+    build_truths_embedding: >-
+      select truth_id, stext, stype from all_truth_statements_tmp where sdate between (select min(s_date) from
+      wp_statements where wc between 7 and 107) and (select max(s_date) from wp_statements where
+      wc between 7 and 107)
+    build_falsehoods_embedding: >-
+      select sid as falsehood_id, statement_text, if(source='Twitter',1,0) as stype from wp_statements where wc between 7 and 107
+    base_model_based_cands_sql: >-
+      insert into base_false_truth_del_cands (falsehood_id, truth_id, l2dist) values (%s, %s, %s)
+    dc_model_based_cands_sql: >-
+      insert into false_truth_del_cands (falsehood_id, truth_id, l2dist) values (%s, %s, %s)
+    base_model_prune_sql: >-
+      delete from all_truth_statements_tmp where
+      truth_id in (select * from base_model_dist_based_filter_vw)
+    dc_model_based_prune_sql: >-
+      delete from all_truth_statements_tmp where
+      truth_id in (select * from dc_model_dist_based_filter_vw)
+    hash_based_prune_sql:
+      - delete a FROM fbase_statements a, fbase_twitter_wp_dups b where a.tid = b.tid and a.sid = b.sid and b.tid != 'none'
+      - delete a FROM dcbot_tweets a, fbase_twitter_wp_dups b where a.thread_id = b.sid and b.tid = 'none'
+      - insert into all_truth_statements_tmp select * from all_truth_statements_tmp_v
+    ds_metadata_sql: >-
+      insert ignore into ds_metadata (dsid, ds_type, train_start_date, train_end_date, val_start_date,
+      val_end_date, test_start_date, test_end_date) values (%s, %s, %s, %s, %s, %s, %s, %s)
+inference:
+  sql:
+    tweet_model_perf_cache_sql: "select * from tweet_model_accuracy_lookup_cache"
+    nontweet_model_perf_cache_sql: "select * from nontweet_model_accuracy_lookup_cache"
+    global_model_perf_cache_sql: "select * from global_model_accuracy_lookup_cache"
+    pred_exp_sql: "select * from pred_explr_stmts"
+    ds_md_sql: >-
+      select dsid, train_start_date, train_end_date from ds_metadata where ds_type='converged_filtered' order by dsid desc limit 1
+    save_model_sql: >-
+      insert ignore into model_analysis_rpts (model_version, dsid, report_type,
+      statement_id, statement_text, stype, sdate, label, prediction, raw_pred)
+      values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)

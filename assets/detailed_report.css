@@ -1,0 +1,274 @@
+@page {
+  /*size: Letter;  Change from the default size of A4 */
+  size: 11.4in 7.0in; /*width length */
+  margin: 0in; /* Set margin on each page */
+}
+@font-face {
+font-family: "Humor Sans";
+src: url("../docs/assets/Humor-Sans-1.0.ttf") format('truetype');
+}
+body {
+  margin: 2px;
+  background-color: #fff;
+}
+* { box-sizing: border-box;}
+.statswrapper {
+    width:1100px;
+}
+.stats1 {
+    height: 70px;
+    width: 1100px;
+    padding-top:2px;
+    float: left;
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+}
+.stats2 {
+    height: auto;
+    width: 1086px;
+    margin-top: -4px;
+    float: left;
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    /*
+    /*
+    max-height: 150px; not supported by weasyprint
+    overflow:hidden; not supported by weasyprint
+    */
+}
+.stats3 {
+    height: 65px;
+    width: 610px;
+    float: left;
+     /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+}
+.statsplot1 {
+    height: 300px;
+    width: 1100px;
+    padding-top:0px;
+    margin-top:-4px;
+    float:left;
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+}
+.box {
+    font-family: 'Humor Sans';
+    background-color: #020766;
+    color: #fff;
+    padding: 2px;
+    padding-left:4px;
+    margin: 2px;
+    font-size: 16px;
+    text-align: left;
+    float: left;
+}
+.prediction {
+    height: 65px;
+    width: 300px;
+}
+.local_acc {
+    height: 65px;
+    width: 300px;
+    text-align: center;
+}
+.global_acc {
+    height: 65px;
+    width: 478px;
+    text-align: center;
+    padding-top: 0px;
+    font-size: 14px;
+}
+/*
+.logo {
+    height: 50px;
+    width: 200px;
+    opacity: 0.8;
+    margin-top:-50px;
+    margin-left:30px;
+}*/
+.logo {
+    height: 94px;
+    width: 130px;
+    position: fixed;
+    margin-top: 139px;
+}
+
+.attribution {
+    height: 57px;
+    width: 300px;
+}
+.max_word {
+    height: 57px;
+    width: 250px;
+    font-size:16px;
+    text-align: center;
+    padding-top: 8px;
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+}
+.legend {
+    height: 57px;
+    width: 350px;
+    font-size: 14px;
+    text-align: left;
+}
+.word_import {
+    background-color: #fff;
+    height: auto;
+    width: 1100px;
+    font-size: 16px;
+    text-align: left;
+    padding-left:1%;
+    padding-right:2%;
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+}
+img.ss {
+    height: 300px;
+    width: 600px;
+    float: left;
+    margin-right: 8px;
+    padding-right: 4px;
+/*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+*/
+}
+.corner_note {
+position:relative;
+padding-left:3px;
+font-size:16px;
+width: 350px;
+height: 12px;
+text-align:left;
+}
+.stmt_summs {
+    height: 435px;
+    width: 478px;
+    font-size: 14px;
+    padding: 5px;
+    margin-left:0px;
+    top: -61px;
+    left: 2px;
+    position:relative;
+/*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+*/
+    }
+.logo_bottom {
+    height: 0px;
+    width: 1000px;
+    padding-top:0px;
+    margin-top:-4px;
+    float:left;
+    opacity: 0.8;
+    position: relative;
+    top: -50px;
+/*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+*/
+}
+.footnotes {
+    background-color: #fff;
+    height: 110px;
+    width: 1100px;
+    top:100px;
+    float:left;
+    font-size:12px;
+    font-style: italic;
+    left:0px;
+    margin-top: 70px;
+    /*
+    bottom:40px;
+    position:absolute;
+    */
+    /*
+    border-style: solid;
+    border-width: 2px;
+    border-color: red;
+    */
+    }
+.footnotes ol {
+padding-left:0%;
+padding-right:0%;
+padding-top:10px;
+left:3%;
+top:0px;
+}
+.red {
+    color: #ff5a36;
+    image-rendering: -webkit-optimize-contrast;
+    background: none;
+    text-shadow: 3px 0 0 black, 0 3px 0 black, -2px 0 0 black, 0 -2px 0 black;
+}
+.green {
+    color: #00FF00;
+    background: none;
+}
+.white {
+    color: #FFFFFF;
+    background: none;
+}
+.emph {
+    font-weight:bold;
+    font-size:18px;
+}
+.mid {
+    font-size:15px;
+}
+
+.und_dec {
+    border-bottom:1px;
+    border-color:#ffffff;
+    display:inline-table;
+    border-style: none none groove none;
+    margin-bottom: 5px;
+}
+
+ol {
+  margin: 0px;
+  padding-top:0px;
+  padding: 0px;
+  width:95%;
+  position:relative;
+  top:5%;
+  left:5%;
+  vertical-align:middle;
+}
+.stmt_summs ol li {
+     margin-bottom:8px;
+}
+.small{
+    font-size: 12px;
+    background: none;
+    font-style: italic;
+}
+
+.cm_small{
+    font-size: 14px;
+    background: none;
+}
+

@@ -1,0 +1,10 @@
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64"
+export CUDA_HOME=/usr/local/cuda
+export PYTHONPATH="${PYTHONPATH}:${HOME}/repos/edification/deep_classiflie_feat:${HOME}/repos/captum:${HOME}/repos/transformers:${HOME}/repos/edification/deep_classiflie_db_feat"
+export DC_BASE="$HOME/repos/edification/deep_classiflie_feat"
+export DCDB_BASE="$HOME/repos/edification/deep_classiflie_db_feat"
+export PYTHONUNBUFFERED=1
+export DCDB_PASS="dcbotpasshere_dev"
+export DCDB_USER="dcbot_dev"
+export DCDB_HOST="hostgoeshere"
+export DCDB_NAME="deep_classiflie_dev"
