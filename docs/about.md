@@ -15,6 +15,7 @@
 - [Citing Deep Classiflie](#citing-deep-classiflie)
 - [References and Notes](#references-and-notes)
 - [License](#license)
+- [View on GitHub]({{  site.github.repository_url  }})
 </details>
 
 ---
@@ -442,18 +443,18 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 ### Citing Deep Classiflie
 Please cite:
 ```tex
-@misc{Dan_Dale_2020_tbd,
+@misc{Dan_Dale_2020_3995079,
     author       = {Dan Dale},
     title        = {% raw %}{{Deep Classiflie: Shallow fact-checking with deep neural networks}}{% endraw %},
     month        = aug,
     year         = 2020,
-    doi          = {tbd/zenodo.tbd},
-    version      = {1.0},
+    doi          = {10.5281/zenodo.3995079},
+    version      = {v0.1.0-alpha},
     publisher    = {Zenodo},
-    url          = {https://doi.org/tbd/zenodo.tbd}
+    url          = {https://zenodo.org/record/3995079}
     }
 ```
-Feel free to star the repo as well if you find it useful or interesting. Thanks!
+Feel free to star the [repo]({{  site.github.repository_url  }}) as well if you find it useful or interesting. Thanks!
 
 ---
 ### References and Notes
@@ -473,5 +474,7 @@ Feel free to star the repo as well if you find it useful or interesting. Thanks!
 ---
 ### License
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-- **[MIT license](http://opensource.org/licenses/mit-license.php)**
+
+<span class="gh_small"> [View on GitHub]({{  site.github.repository_url  }}) </span>
+
 

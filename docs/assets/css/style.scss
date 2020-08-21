@@ -538,6 +538,15 @@ ul.fnum {
     padding-left:0.5rem;
 }
 
+.gh_small {
+    font-size: 0.7rem;
+    font-style:italic;
+    padding:0px;
+    margin:0px;
+    line-height:0.5;
+    font-weight:bold;
+}
+
 @media all and (min-width: 30em) {
     .metric_summ {
         font-size: 1.3rem;
@@ -645,9 +654,11 @@ ul.fnum {
     .main-content h4, .main-content p, .main-content ul li, .main-content ol li {
         font-size: 1.1rem;
     }
-
     .about-table table {
         font-size: 1.0rem;
+    }
+    .gh_small {
+        font-size: 1.1rem;
     }
 
 }

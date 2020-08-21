@@ -1,5 +1,6 @@
 [![python badge](https://img.shields.io/badge/python->=3.7-brightgreen.svg)](https://shields.io/)
 [![pytorch badge](https://img.shields.io/badge/pytorch->=1.6.0-blue.svg)](https://shields.io/)
+[![DOI](https://zenodo.org/badge/254935540.svg)](https://zenodo.org/badge/latestdoi/254935540)
 <img class="dc_logo_head" src="docs/assets/dc_logo.png" alt="Deep Classiflie Logo" align="right"/>
 <details open><summary markdown="span"><strong>Table of Contents</strong>
 </summary>
@@ -445,15 +446,15 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 ### Citing Deep Classiflie
 Please cite:
 ```tex
-@misc{Dan_Dale_2020_tbd,
+@misc{Dan_Dale_2020_3995079,
     author    = {Dan Dale},
     title     = {{Deep Classiflie: Shallow fact-checking with deep neural networks}},
     month     = aug,
     year      = 2020,
-    doi       = {tbd/zenodo.tbd},
-    version   = {1.0},
+    doi       = {10.5281/zenodo.3995079},
+    version   = {v0.1.0-alpha},
     publisher = {Zenodo},
-    url       = {https://doi.org/tbd/zenodo.tbd}
+    url       = {https://zenodo.org/record/3995079}
     }
 ```
 Feel free to star the repo as well if you find it useful or interesting. Thanks!
@@ -476,5 +477,3 @@ Feel free to star the repo as well if you find it useful or interesting. Thanks!
 ---
 ### License
 [![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-- **[MIT license](http://opensource.org/licenses/mit-license.php)**
-
