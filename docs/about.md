@@ -84,7 +84,7 @@ The entire initial Deep Classiflie system (raw dataset, model, analytics modules
     
 **Model Training**
 - Fine-tune a base model (currently HuggingFace's [ALBERT implementation](https://huggingface.co/transformers/model_doc/albert.html) with some minor customizations) in tandem with a simple embedding reflecting the semantic shift associated with the medium via which the statement was conveyed (i.e., for the POC, just learn the tweet vs non-tweet transformation) (using [Pytorch](https://pytorch.org/))
-- Explore the latest model's training session on tensorboard.dev. 
+- Explore the latest model's training session on [tensorboard.dev](https://tensorboard.dev/experiment/rGNQpYnYSOaHb2A84xRAzw). 
 - N.B. neuro-symbolic methods<sup id="a6">[6](#f6)</sup> that leverage knowledge bases and integrate symbolic reasoning with connectionist methods are not used in this model. Use of these approaches may be explored in [future research](#further-research) using this framework. 
     
 **Analysis & Reporting**
