@@ -7,17 +7,17 @@ markdown: kramdown
 kramdown:
   parse_block_html: true
 theme: jekyll-theme-cayman
-# google_analytics: UA-164298056-1
+google_analytics: UA-26562413-2
 show_downloads: false
 about_url: about.html
 pred_explorer_url: pred_explorer.html
 perf_explorer_url: perf_explorer.html
 needs_bokeh: true
-url: "https://speediedan.github.io"
+url: https://deepclassiflie.org
 plugins:
   - jekyll-feed
   - jekyll-sitemap
-
+enforce_ssl: deepclassiflie.org
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
