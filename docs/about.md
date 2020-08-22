@@ -1,4 +1,4 @@
-<details open><summary markdown="span"><strong>Table of Contents</strong>
+<details><summary markdown="span"><strong>Table of Contents</strong>
 </summary>
 
 - [What is Deep Classiflie?](#what-is-deep-classiflie)

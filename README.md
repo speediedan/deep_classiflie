@@ -2,7 +2,7 @@
 [![pytorch badge](https://img.shields.io/badge/pytorch->=1.6.0-blue.svg)](https://shields.io/)
 [![DOI](https://zenodo.org/badge/254935540.svg)](https://zenodo.org/badge/latestdoi/254935540)
 <img class="dc_logo_head" src="docs/assets/dc_logo.png" alt="Deep Classiflie Logo" align="right"/>
-<details open><summary markdown="span"><strong>Table of Contents</strong>
+<details><summary markdown="span"><strong>Table of Contents</strong>
 </summary>
 
 - [What is Deep Classiflie?](#what-is-deep-classiflie)

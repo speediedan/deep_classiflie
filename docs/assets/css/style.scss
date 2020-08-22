@@ -547,6 +547,14 @@ ul.fnum {
     font-weight:bold;
 }
 
+img.dc_logo_head {
+    height:109px;
+    width:150px;
+    left:1.5rem;
+    float:left;
+    margin-right: 1.0rem;
+}
+
 @media all and (min-width: 30em) {
     .metric_summ {
         font-size: 1.3rem;
@@ -624,6 +632,7 @@ ul.fnum {
         width:20rem;
         display:contents;
         margin-left:1.0rem;
+        font-size: 1.2rem;
     }
     .bn-val {
         font-size: 1.2rem;
@@ -660,7 +669,16 @@ ul.fnum {
     .gh_small {
         font-size: 1.1rem;
     }
-
+    .btn {
+        font-size: 1.1rem;
+    }
+    img.dc_logo_head {
+        height: 142px;
+        width: 195px;
+        left: 1.5rem;
+        float: left;
+        margin-right: 1.0rem;
+    }
 }
 
 .radio_wrapper .bk-btn-default {
@@ -754,13 +772,7 @@ table.local_metric_summary th, table.local_metric_summary td {
 }
 
 
-img.dc_logo_head {
-    height:109px;
-    width:150px;
-    left:1.5rem;
-    float:left;
-    margin-right: 1.0rem;
-}
+
 
 .logo {
     height: 200px;
