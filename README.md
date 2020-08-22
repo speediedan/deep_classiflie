@@ -476,4 +476,4 @@ Feel free to star the repo as well if you find it useful or interesting. Thanks!
 
 ---
 ### License
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![License](https://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://badges.mit-license.org)

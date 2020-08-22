@@ -473,7 +473,7 @@ Feel free to star the [repo]({{  site.github.repository_url  }}) as well if you 
 
 ---
 ### License
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+[![License](https://img.shields.io/:license-mit-blue.svg?style=flat-square)](https://badges.mit-license.org)
 
 <span class="gh_small"> [View on GitHub]({{  site.github.repository_url  }}) </span>
 
