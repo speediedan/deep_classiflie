@@ -555,6 +555,28 @@ img.dc_logo_head {
     margin-right: 1.0rem;
 }
 
+summary::-webkit-details-marker {
+  display: none
+}
+
+summary:after {
+  background: url("../expand_plus.png") center no-repeat;
+  background-size: 20px 20px;
+  color: transparent;
+  float: left;
+  height: 20px;
+  width: 20px;
+  padding: 5px 5px 0px 0px;
+  content: " ";
+}
+
+details[open] summary:after {
+  background: url("../expand_minus.png") center no-repeat;
+  background-size: 20px 20px;
+  padding: 5px 5px 0px 0px;
+  color: transparent;
+}
+
 @media all and (min-width: 30em) {
     .metric_summ {
         font-size: 1.3rem;

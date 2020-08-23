@@ -241,7 +241,7 @@ The parameters used in all Deep Classiflie job executions related to the develop
 
 ---
 ### Model Replication
-<details><summary markdown="span"><strong>Instructions</strong> <span class="note">(click to expand)</span>
+<details><summary markdown="span"><strong>Instructions</strong>
 </summary>
 
 N.B. before you begin, the core external dependency is admin access to a mariadb or mysql DB
