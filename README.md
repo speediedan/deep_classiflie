@@ -2,6 +2,7 @@
 [![pytorch badge](https://img.shields.io/badge/pytorch->=1.6.0-blue.svg)](https://shields.io/)
 [![DOI](https://zenodo.org/badge/254935540.svg)](https://zenodo.org/badge/latestdoi/254935540)
 <img class="dc_logo_head" src="docs/assets/dc_logo.png" alt="Deep Classiflie Logo" align="right"/>
+
 <details><summary markdown="span"><strong>Table of Contents</strong>
 </summary>
 
@@ -24,9 +25,7 @@
 ---
 ### What is Deep Classiflie?
 - Deep Classiflie is a framework for developing ML models that bolster fact-checking efficiency. Predominantly a research project<sup id="ae">[e](#ce)</sup>, I plan to extend and maintain this framework in pursuing my own research interests so am sharing it in case it's of any utility to the broader community.
-- As a POC, the initial alpha release of Deep Classiflie generates/analyzes a model that continuously classifies a single individual's statements (Donald Trump)<sup id="a1">[1](#f1)</sup> using a single ground truth labeling source (The Washington Post). For statements the model deems most likely to be labeled falsehoods (see [current performance](#current-performance) for more detail), the [@DeepClassiflie](https://twitter.com/DeepClassiflie) twitter bot tweets out a statement analysis and model interpretation "report" such as the one below:
-
-    <img src="docs/assets/example_twitter_report.png" alt="Example tweet report" />
+- As a POC, the initial alpha release of Deep Classiflie generates/analyzes a model that continuously classifies a single individual's statements (Donald Trump)<sup id="a1">[1](#f1)</sup> using a single ground truth labeling source (The Washington Post). 
 - The Deep Classiflie POC model's predictions and performance on the most recent test set can be [explored](#model-exploration) and better understood using the [prediction explorer](pred_explorer.html):
     <img src="docs/assets/pred_exp.gif" alt="prediction explorer" />
 - and the [performance explorer](perf_explorer.html):
@@ -53,20 +52,29 @@
 ---
 
 ### Model Exploration
+
 The best way to start understanding/exploring the current model is to use the explorers on deepclassiflie.org:
 
-#### [Prediction Explorer](pred_explorer.html):
-Explore randomly sampled predictions from the test set of the latest model incarnation. The explorer uses [captum's](https://captum.ai/) implementation of integrated gradients<sup id="a7">[7](#f7)</sup> to visualize attributions of statement predictions to tokens in each statement. Read more about explorer [below.](##current-performance)
+<details><summary markdown="span"><strong>Prediction Explorer</strong>
+    
+</summary>
+    
+[Explore](pred_explorer.html) randomly sampled predictions from the test set of the latest model incarnation. The explorer uses [captum's](https://captum.ai/) implementation of integrated gradients<sup id="a7">[7](#f7)</sup> to visualize attributions of statement predictions to tokens in each statement. Read more about explorer [below.](##current-performance)
 
 <img src="docs/assets/pred_exp.gif" alt="prediction explorer" />
+</details>
 
-#### [Performance Explorer](perf_explorer.html):
-Explore the performance of the current model incarnation using confusion matrices oriented along temporal and confidence-based axes.
+<details><summary markdown="span"><strong>Performance Explorer</strong>
+</summary>
+
+[Explore](perf_explorer.html) the performance of the current model incarnation using confusion matrices oriented along temporal and confidence-based axes.
 
 <img src="docs/assets/temporal_confusion_matrices.gif" alt="temporal performance explorer" />
 <img src="docs/assets/conf_bucket_confusion_matrices.gif" alt="confidence bucket performance explorer" />
+</details>
 
 ---
+
 ### Core Components
 
 The entire initial Deep Classiflie system (raw dataset, model, analytics modules, twitter bot etc.) can be built from scratch using the publicly available code here.<sup id="a2">[2](#f2)</sup>
@@ -76,31 +84,42 @@ The entire initial Deep Classiflie system (raw dataset, model, analytics modules
 | Component | Description |
 | ---- | --- |
 | [**deep_classiflie**](https://github.com/speediedan/deep_classiflie) | Core framework for building, training and analyzing fact-check facilitating ML models. Can operate independently from deep_classiflie_db when training a model using existing dataset collections or when performing inference. Depends on deep_classiflie_db for certain functions such as creating new dataset collections, running the tweetbot, running the analytics modules etc. <sup id="a3">[3](#f3)</sup> |
-| [**deep_classiflie_db**](https://github.com/speediedan/deep_classiflie_db) | Backend data system for managing Deep Classiflie metadata, analyzing Deep Classiflie intermediate datasets and orchestrating Deep Classiflie model training pipelines. Includes data scraping modules for the initial model data sources (twitter, factba.se, washington post -- politifact and the toronto star were removed from an earlier version and may be re-added among others as models for other prominent politicians are explored) |
+| [**deep_classiflie_db**](https://github.com/speediedan/deep_classiflie_db) | Backend datastore for managing Deep Classiflie metadata, analyzing Deep Classiflie intermediate datasets and orchestrating Deep Classiflie model training pipelines. Includes data scraping modules for the initial model data sources (twitter, factba.se, washington post -- politifact and the toronto star were removed from an earlier version and may be re-added among others as models for other prominent politicians are explored) |
     
 </div>
 
-[Dataset Generation](#data-pipeline)
+<details><summary markdown="span"><strong>Dataset Generation</strong>
+</summary>
+
 - For simplicity, scrape "ground truth" falsehood labels from a single source ([Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database))
 - Scrape a substantial fraction of public statements from multiple sources. ([Factba.se](https://factba.se), [Twitter](https://twitter.com))
 - Use statement hashes and subword representations from a base model (ALBERT<sup id="a8">[8](#f8)</sup>)  to remove "false" statements present in the larger "truths" corpus.
 - Prepare chronologically disjoint train/dev/test sets (to avoid data leakage) and attempt to reduce undesired superficial class-aligned distributional artifacts that could be leveraged during model training. NNs are lazy, they'll cheat if we let them.
-    
-**Model Training**
+
+</details>
+<details><summary markdown="span"><strong>Model Training</strong>
+</summary>
+
 - Fine-tune a base model (currently HuggingFace's [ALBERT implementation](https://huggingface.co/transformers/model_doc/albert.html) with some minor customizations) in tandem with a simple embedding reflecting the semantic shift associated with the medium via which the statement was conveyed (i.e., for the POC, just learn the tweet vs non-tweet transformation) (using [Pytorch](https://pytorch.org/))
 - Explore the latest model's training session on [tensorboard.dev](https://tensorboard.dev/experiment/rGNQpYnYSOaHb2A84xRAzw). 
 - N.B. neuro-symbolic methods<sup id="a6">[6](#f6)</sup> that leverage knowledge bases and integrate symbolic reasoning with connectionist methods are not used in this model. Use of these approaches may be explored in [future research](#further-research) using this framework. 
-    
-**Analysis & Reporting**
+</details>
+<details><summary markdown="span"><strong>Analysis & Reporting</strong>
+</summary>
+
 - Interpret statement-level predictions using [captum's](https://captum.ai/) implementation of integrated gradients to visualize attributions of statement predictions to tokens in each statement.
 - Prediction and model performance exploration dashboards were built using [bokeh](https://docs.bokeh.org/en/latest/index.html) and [Jekyll](https://github.com/jekyll/jekyll)
-- Automated false statement reports for predictions meeting the desired [PPV](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) confidence threshold are published on twitter via the [@DeepClassiflie](https://twitter.com/DeepClassiflie) bot, which leverages [Tweepy](https://www.tweepy.org/)
-- XKCD fans may notice the style of the dashboard explorers and statement reports are XKCD-inspired using the Humor Sans font created by [@ch00ftech](https://twitter.com/ch00ftech). Thanks to him (and [@xkcd](https://twitter.com/xkcd) of course!)
+- Two inference daemons poll, analyze and classify new statements:
+    1. (still in development) A daemon that publishes via IPFS pubsub, all new statement classifications and inference output.
+    2. (currently available) Automated false statement reports for predictions meeting the desired [PPV](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) confidence threshold can be published on twitter via a twitter bot, which leverages [Tweepy](https://www.tweepy.org/). The bot <sup id="ah">[h](#ch)</sup> tweets out a statement analysis and model interpretation "report" such as the one below for statements the model deems most likely to be labeled falsehoods (see [current performance](#current-performance) for more detail):
 
+        <img src="docs/assets/example_twitter_report.png" alt="Example tweet report" /> 
+- XKCD fans may notice the style of the dashboard explorers and statement reports are XKCD-inspired using the Humor Sans font created by [@ch00ftech](https://twitter.com/ch00ftech). Thanks to him (and [@xkcd](https://twitter.com/xkcd) of course!)
+</details>
 
 --- 
 ### Current Performance
-<details open><summary markdown="span"><strong>Global</strong>
+<details><summary markdown="span"><strong>Global</strong>
 </summary>
     
 Global metrics<sup id="a9">[9](#f9)</sup> summarized in the table below relate to the current model's performance on a test set comprised of ~12K statements made between 2020-04-03 and 2020-07-08:<br/>
@@ -108,7 +127,7 @@ Global metrics<sup id="a9">[9](#f9)</sup> summarized in the table below relate t
 
 </details>
 
-<details open><summary markdown="span"><strong>Local</strong>
+<details><summary markdown="span"><strong>Local</strong>
 </summary>
 
 To minimize false positives and maximize the model's utility, the following approach is used to issue high-confidence predictions:
@@ -118,95 +137,64 @@ To minimize false positives and maximize the model's utility, the following appr
     * [PPV](https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values) 
     * Positive prediction ratio: (bucket true positives + bucket false positives)/#statements in bucket
     * Bucket-level accuracy
-3. Report estimated local accuracy metrics of given prediction by associating it with its corresponding confidence bucket
+3. Report estimated local accuracy metrics of given prediction by associating it with its corresponding confidence bucket. See [caveats](#caveats) regarding recognized performance biases<sup id="aa">[a](#ca)</sup>
     * In the prediction explorer, randomly sample 100 statements (including all confusion matrix classes) from each of four confidence buckets: the maximum and minimum accuracy buckets for each statement type.  
         <img src="docs/assets/max_acc_nontweets.png" alt="Max Accuracy Non-Tweets" /> <br/>
         <img src="docs/assets/max_acc_tweets.png" alt="Max Accuracy Tweets" />
-4. Use statement-type aligned (tweet vs non-tweet) PPV thresholds to estimate @DeepClassiflie's statement report publishing accuracy using performance from the most recent test set. See [caveats](#caveats) regarding recognized performance biases<sup id="aa">[a](#ca)</sup>.
 </details>
-
-<details open><summary markdown="span"><strong>@DeepClassiflie Report Performance</strong>
-</summary>
-    
-Had @DeepClassiflie been publishing statement reports over the period comprising its test set (see above) using the current model, the publishing performance is expected to have been approximately characterized by the statistics below. See [caveats](#caveats) regarding the modest recognized performance biases<sup>[a](#ca)</sup>. Now that report publishing has begun, once additional labeled data are available, the realized performance of the model will be similarly reported here.<br/>
-    
-<div class="about-table">
-    
-| Model Version | Period Days | Start Date | End Date |
-| :--- | :---: | :---: | :---: |
-| 20200816115426 | 96 | 04/03/2020 | 07/08/2020 |
-    
-</div>
-<div class="about-table">    
-    
-| Statement Type | Publish Threshold | Stmts/max bucket | Bucket ppv | Bucket ppr| Est Reports Published | Estimated TP |  Estimated FP |
-| :--- | :---: | :---: | :---: | :---:| :---: | :---: |  :---: |
-Non-Tweets | 0.96 | 430 | 0.965 |1 | 430 |415 | 15 |
-Tweets | 0.77 | 109 | 0.786 | 0.257 |28 | 22 | 6 |
-    
-</div>
-<div class="about-table"> 
-    
-| Period Estimate | Period total | Per day |
-| :--- | :---: | :---: |
-Non-tweet reports published | 430 | 4.48 |
-Tweet reports published | 28 | 0.29 |
-TP non-tweet reports published | 415 | 4.32 |
-FP non-tweet reports published | 15 | 0.16 |
-TP tweet reports published | 22 | 0.23 |
-FP tweet reports published | 6 | 0.06 |
-Projected report period non-tweet accuracy | 96.5% | 
-Projected report period tweet accuracy | 78.6% | 
-Projected report period global accuracy | 95.4% | 
-    
-</div>
-</details>
-
 
 ---
 ### Noteworthy Features
-#### Dataset generation:
+<details><summary markdown="span"><strong>Dataset generation</strong>
+</summary>
+
 - Easily and extensively configurable using yaml [configuration files](#configuration). 
 - Multiple different class balancing strategies available (oversampling, class ratios etc.)
 - "Weakly converge" superficially divergent class distributions using UnivariateDistReplicator abstraction
 - Easily experiment with different train/dev/test splits/configurations via declarative DatasetCollection definitions. 
+</details>
 
-#### Model training:
+<details><summary markdown="span"><strong>Model training</strong>
+</summary>
+    
 - Automated recursive fine-tuning of the base model with a FineTuningScheduler abstraction
 - Configurable label-smoothing<sup id="a4">[4](#f4)</sup>
 - Generate and configure thawing schedules for models.
 - EarlyStopping easily configurable with multiple non-standard monitor metrics (e.g. mcc)
 - Both automatic and manually-specified [stochastic weight averaging](https://pytorch.org/blog/stochastic-weight-averaging-in-pytorch/) of model checkpoints<sup id="af">[f](#cf)</sup>
 - mixed-precision training via [apex](https://github.com/NVIDIA/apex)<sup id="ag">[g](#cg)</sup>
+</details>
+<details><summary markdown="span"><strong>Analysis & reporting</strong>
+</summary>
 
-#### Analysis & reporting:
 - Extensive suite of reporting views for analyzing model performance and global and local levels
 - Statement and performance exploration dashboards for interpreting model predictions and understanding its performance
 - xkcd-themed visualization of UMAP-transformed statement embeddings
+</details>
 
 ---
 ### Data Pipeline
 To conserve resources and for POC research expediency, the current pipeline uses a local relational DB (MariaDB). Ultimately, a distributed data store would be preferable and warranted if this project merits sufficient interest from the community or a POC involving a distributed network of models is initiated. 
 
-<details open><summary markdown="span"><strong>Deep Classiflie Data Pipeline</strong>
+<details><summary markdown="span"><strong>Deep Classiflie Data Pipeline</strong>
 </summary>
 
 ![Deep Classiflie Data Pipeline](docs/assets/deep_classiflie_data_pipeline.svg)
 </details>
 
-<details open><summary markdown="span"><strong>False Statement Filter Processes</strong>
+<details><summary markdown="span"><strong>False Statement Filter Processes</strong>
 </summary>
 
 ![False Statement Filter Processes](docs/assets/False%20Statement%20Filter%20Processes.svg)
 </details>
 
-<details open><summary markdown="span"><strong>Distribution Convergence Process</strong>
+<details><summary markdown="span"><strong>Distribution Convergence Process</strong>
 </summary>
 
 ![Distribution Convergence Process](docs/assets/Distribution%20Convergence%20Process.svg)
 </details>
 
-<details open><summary markdown="span"><strong>Dataset Generation Process</strong>
+<details><summary markdown="span"><strong>Dataset Generation Process</strong>
 </summary>
 
 ![Dataset Generation Process](docs/assets/Dataset%20Generation%20Process.svg)
@@ -244,7 +232,7 @@ The parameters used in all Deep Classiflie job executions related to the develop
 
 ---
 ### Model Replication
-<details><summary markdown="span"><strong>Instructions</strong> <span class="note">(click to expand)</span>
+<details><summary markdown="span"><strong>Instructions</strong>
 </summary>
 
 N.B. before you begin, the core external dependency is admin access to a mariadb or mysql DB
@@ -428,6 +416,7 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 
 ---
 ### Caveats
+
 <ul class="fnum">
     <li> <span class="fnum" id="ca">[a]</span> The distance threshold for filtering out "false truths" using base model embeddings matches falsehoods to their corresponding truths with high but imperfect accuracy. This fuzzy matching process will result in a modest upward performance bias in the test results. Model performance on datasets built using the noisy matching process (vs exclusively hash-based) improved by only ~2% globally with gains slightly disproportionately going to more confident buckets. This places a relatively low ceiling on the magnitude of the performance bias introduced through this filtering. The precise magnitude of this bias will be quantified in the future via one or both of the following methods <a href="#aa">↩</a>:</li>
     <ul>
@@ -435,11 +424,12 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
         <li>when the next set of ground truth label data are released by the Washington Post, an estimated vs actual performance comparison can be performed</li>
     </ul>
     <li><span class="fnum" id="cb">[b]</span> The module used to bootstrap the POC model's tweet history by crawling factba.se needs to be refactored and added into the initial dataset bootstrap process. This is presently one of many issues in the backlog. <a href="#ab">↩</a></li>
-    <li><span class="fnum" id="cc">[c]</span> Deep Classiflie depends upon deep_classiflie_db (initially released as a separate repository) for much of its analytical and dataset generation functionality but deep_classiflie_db is currently maintained as a separate repository here to maximize architectural flexibility. Depending on how Deep Classiflie evolves (e.g. as it supports distributed data stores etc.), it may make more sense to integrate deep_classiflie_db back into deep_classiflie. <a href="#ac">↩</a></li>
+    <li><span class="fnum" id="cc">[c]</span> Deep Classiflie depends upon deep_classiflie_db (initially released as a separate repository) for much of its analytical and dataset generation functionality. Depending on how Deep Classiflie evolves (e.g. as it supports distributed data stores etc.), it may make more sense to integrate deep_classiflie_db back into deep_classiflie. <a href="#ac">↩</a></li>
     <li><span class="fnum" id="cd">[d]</span> It's notable that the model suffers a much higher FP ratio on tweets relative to non-tweets. Exploring tweet FPs, there are a number of plausible explanations for this discrepancy which could be explored in future research. <a href="#ad">↩</a></li>
     <li><span class="fnum" id="ce">[e]</span> Still in early development, there are significant outstanding issues (e.g. no tests yet!) and code quality shortcomings galore, but any constructive thoughts or contributions are welcome. I'm interested in using ML to curtail disinformation, not promulgate it, so I want to be clear --  this is essentially a fancy sentence similarity system with a lot of work put into building the dataset generation and model analysis data pipelines (I have a data engineering background, not a software engineering one).<a href="#ae">↩</a></li>
     <li><span class="fnum" id="cf">[f]</span> Current model release built/tested before swa graduated from torchcontrib to core pytorch. Next release of Deep Classiflie will use the integrated swa api.<a href="#af">↩</a></li>
     <li><span class="fnum" id="cg">[g]</span> Current model release built/tested before AMP was integrated into core pytorch. Next release of Deep Classiflie will use the integrated AMP api.<a href="#ag">↩</a></li>
+    <li><span class="fnum" id="ch">[h]</span> N.B. This daemon may violate Twitter's <a href="https://help.twitter.com/en/rules-and-policies/twitter-automation">policy</a> w.r.t. tweeting sensitive content if the subject's statements contain such content (no content-based filtering is included in the daemon). @DeepClassflie initially tested the Deep Classiflie twitter daemon but will post only framework-related announcements moving forward.<a href="#ah">↩</a></li>
 </ul>
 
 ---
@@ -447,14 +437,14 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 Please cite:
 ```tex
 @misc{Dan_Dale_2020_3995079,
-    author    = {Dan Dale},
-    title     = {{Deep Classiflie: Shallow fact-checking with deep neural networks}},
-    month     = aug,
-    year      = 2020,
-    doi       = {10.5281/zenodo.3995079},
-    version   = {v0.1.0-alpha},
-    publisher = {Zenodo},
-    url       = {https://zenodo.org/record/3995079}
+    author       = {Dan Dale},
+    title        = {{Deep Classiflie: Shallow fact-checking with deep neural networks}},
+    month        = aug,
+    year         = 2020,
+    doi          = {10.5281/zenodo.3995079},
+    version      = {v0.1.0-alpha},
+    publisher    = {Zenodo},
+    url          = {https://zenodo.org/record/3995079}
     }
 ```
 Feel free to star the repo as well if you find it useful or interesting. Thanks!

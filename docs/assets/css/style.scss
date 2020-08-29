@@ -7,6 +7,14 @@
 	height: 90%;
 }
 
+img.dc_logo_head {
+    height:109px;
+    width:150px;
+    left:1.5rem;
+    float:left;
+    margin-right: 1.0rem;
+}
+
 .btn {
     box-shadow:inset 0px 1px 25px 0px #f7c5c0;
     background:linear-gradient(to bottom, #cc5500 5%, #e4685d 100%);
@@ -547,13 +555,7 @@ ul.fnum {
     font-weight:bold;
 }
 
-img.dc_logo_head {
-    height:109px;
-    width:150px;
-    left:1.5rem;
-    float:left;
-    margin-right: 1.0rem;
-}
+
 
 summary::-webkit-details-marker {
   display: none
@@ -578,6 +580,13 @@ details[open] summary:after {
 }
 
 @media all and (min-width: 30em) {
+    img.dc_logo_head {
+        height: 142px;
+        width: 195px;
+        left: 1.5rem;
+        float: left;
+        margin-right: 1.0rem;
+    }
     .metric_summ {
         font-size: 1.3rem;
         margin-left: 0rem;
@@ -693,13 +702,6 @@ details[open] summary:after {
     }
     .btn {
         font-size: 1.1rem;
-    }
-    img.dc_logo_head {
-        height: 142px;
-        width: 195px;
-        left: 1.5rem;
-        float: left;
-        margin-right: 1.0rem;
     }
 }
 
