@@ -6,7 +6,7 @@ data_source:
   skip_db_refresh: True
 trainer:
   # replace checkpoints below with the desired checkpoints from your locally trained model (two checkpoints with lowest loss would be a good choice)
-  build_swa_from_ckpts: ['/home/speediedan/experiments/deep_classiflie/checkpoints/20200814165928/checkpoint-0.5533-20-104055.pt',
-                         '/home/speediedan/experiments/deep_classiflie/checkpoints/20200814165928/checkpoint-0.5642-26-133785.pt']
+  build_swa_from_ckpts: ['/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200831123242/checkpoint-0.5526-37-188214.pt',
+                         '/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200831123242/checkpoint-0.5527-32-163449.pt']
 inference:
   report_mode: False  # set to true to enable report generation

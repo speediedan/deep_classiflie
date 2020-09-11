@@ -9,6 +9,12 @@ curr_parent, curr_base = curr_path[-3], curr_path[-2]
 DEF_PRJ_NAME = "deep_classiflie"
 DEF_DB_PRJ_NAME = "deep_classiflie_db"
 DEV_MODE = True if curr_base != DEF_PRJ_NAME else False
+if DEV_MODE:
+    LOCK_FILE = f"{os.environ['HOME']}/{curr_base}_dcbot.lock"
+    DC_PREDICTIONS_SUBDOMAIN = "predictions-dev"
+else:
+    LOCK_FILE = f"{os.environ['HOME']}/dcbot.lock"
+    DC_PREDICTIONS_SUBDOMAIN = "predictions"
 LOCK_FILE = f"{os.environ['HOME']}/{curr_base}_dcbot.lock" if DEV_MODE else f"{os.environ['HOME']}/dcbot.lock"
 APP_NAME = curr_base
 CPU_COUNT = os.cpu_count()
@@ -18,6 +24,10 @@ DB_WARNING_END = "cannot be executed w/o first configuring the db. Please see th
                  "Aborting..."
 DEFAULT_CONFIG_NAME = "config_defaults.yaml"
 DEFAULT_CONFIG_SQL_NAME = "config_defaults_sql.yaml"
+LOCAL_INFSVC_PUB_CACHE_NAME = "dc_infsvc_pub_cache.json"
+PINATA_PINJSON_ENDPOINT = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
+PINATA_UNPINJSON_ENDPOINT = "https://api.pinata.cloud/pinning/unpin"
+CLOUDFLARE_DC_DNS_ENDPOINT = "https://api.cloudflare.com/client/v4/zones"
 # default db project location is to be a sibling dir of this project
 DEF_DB_PRJ_LOCATION = os.path.abspath(f'{curr_parent}/../../')
 DEF_DB_CONF_NAME = f"{DEF_DB_PRJ_NAME}.yaml"

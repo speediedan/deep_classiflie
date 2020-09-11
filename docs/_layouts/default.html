@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="{{ site.lang | default: "en-US" }}">
+<html lang="{{ site.lang }}">
   <head>
+    <title>{{ page.title }}</title>
     {% if site.google_analytics %}
       <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26562413-2"></script>
       <script>
@@ -23,8 +24,17 @@
     <meta property="og:description" content="Shallow fact-checking with deep neural networks" />
     <meta property="og:image" content="https://deepclassiflie.org/assets/dc_twitter_card.png" />
     {% seo %}
+    {% if page.needs_datatables %}
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>-->
+    <link rel="stylesheet" type="text/css" href="/assets/css/datatables.min.css"/>
+    <script type="text/javascript" src="/assets/js/datatables.min.js"></script>
+    <!--<script type="text/javascript" src="/assets/js/datatables.js"></script>-->
+    <link rel="stylesheet" type="text/css" href="/assets/css/loading_bar.css"/>
+    <script type="text/javascript" src="/assets/js/loading_bar.js"></script>
+    {% endif %}
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
-    {% if site.needs_bokeh %}
+    {% if page.needs_bokeh %}
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-2.1.1.min.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.1.1.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.1.1.min.js" crossorigin="anonymous"></script>
@@ -38,13 +48,17 @@
       <img class="dc_logo_head" src="/assets/dc_logo.png" alt="Deep Classiflie Logo" />
       <div class="cust-project-tagline">{{ site.description | default: site.github.project_tagline }}</div>
       <div class="cust-nav-wrap">
-        <a href="{{ site.about_url }}" class="btn">About</a>
-        <a href="{{ site.pred_explorer_url }}" class="btn">Prediction Explorer</a>
-        <a href="{{ site.perf_explorer_url }}" class="btn">Performance Explorer</a>
-        {% if site.show_downloads %}
-        <a href="{{ site.github.zip_url }}" class="btn">Download .zip</a>
-        <a href="{{ site.github.tar_url }}" class="btn">Download .tar.gz</a>
-        {% endif %}
+        <ul>
+          <li><a href="{{ site.about_url }}" class="btn">About</a></li>
+          <li><a href="{{ site.pred_explorer_url }}" class="btn">Prediction Explorer</a></li>
+          <li><a href="{{ site.perf_explorer_url }}" class="btn">Performance Explorer</a></li>
+          <li><a href="{{ site.current_explorer_url }}" class="btn">Current Predictions</a></li>
+          {% if site.show_downloads %}
+          <li><a href="{{ site.github.zip_url }}" class="btn">Download .zip</a></li>
+          <li><a href="{{ site.github.tar_url }}" class="btn">Download .tar.gz</a></li>
+          {% endif %}
+        </ul>
+
     </div>
     </section>
 

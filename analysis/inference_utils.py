@@ -6,6 +6,7 @@ from typing import List, Dict, Tuple, MutableMapping, Union
 import torch
 from transformers import AlbertTokenizer
 import tqdm
+from torch.utils.data import DataLoader, SequentialSampler, TensorDataset
 
 import utils.constants as constants
 from analysis.interpretation import InterpretTransformer
@@ -153,6 +154,24 @@ def pred_inputs_from_config(inf_session: InferenceSession) -> List[Dict]:
                       'childid': childid}
         pred_inputs.append(pred_input)
     return pred_inputs
+
+
+def prep_batchpred_tups(inf_session: InferenceSession) -> DataLoader:
+    pred_inputs = {'all_input_ids': [], 'all_attention_masks': [], 'all_token_type_ids': [],
+                   'all_position_ids': [], 'all_ctxt_types': []}
+    for i, (parentid, childid, ex, ctxt_type, _) in enumerate(inf_session.config.inference.pred_inputs):
+        input_ids, attention_mask, token_type_ids, position_ids = prep_model_inputs(inf_session, ex)
+        for k, v in zip(pred_inputs.keys(), [input_ids, attention_mask, token_type_ids, position_ids, ctxt_type]):
+            # noinspection PyUnresolvedReferences
+            pred_inputs[k].append(v)
+    for k, v in pred_inputs.items():
+        pred_inputs[k] = torch.tensor([f for f in v], dtype=torch.float) if k == 'all_ctxt_types' else \
+            torch.tensor([f for f in v], dtype=torch.long)
+    pred_dataset = TensorDataset(*list(pred_inputs.values()))
+    pred_sampler = SequentialSampler(pred_dataset)
+    pred_dataloader = DataLoader(pred_dataset, sampler=pred_sampler,
+                                 batch_size=inf_session.config.experiment.infsvc.batch_size)
+    return pred_dataloader
 
 
 def prep_base_mapping_tups(inf_session: InferenceSession) -> List[Dict]:

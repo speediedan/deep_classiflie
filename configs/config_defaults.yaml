@@ -10,6 +10,16 @@ experiment:
     purge_intermediate_reports: False
     non_twitter_update_freq_multiple: 5
     dcbot_poll_interval: 180
+  infsvc:
+    enabled: False
+    batch_mode: True
+    batch_size: 16
+    thread_latency: 900
+    publish: False
+    skip_db_refresh: False
+    # purge_intermediate_reports: False
+    non_twitter_update_freq_multiple: 5
+    dcbot_poll_interval: 180
   debug:
     debug_enabled: False
     use_debug_dataset: False
@@ -112,7 +122,7 @@ trainer:
     max_grad_norm: 1.0
     amsgrad: False
     swa_mode: "best"
-    last_swa_snaps: 5
+    last_swa_snaps: 10
     warmup_epochs: 1
 inference:
   report_mode: False

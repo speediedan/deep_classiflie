@@ -7,30 +7,26 @@ from typing import MutableMapping, List, Dict, Tuple
 import numpy as np
 import torch
 import tqdm
-from torch.optim.adamw import AdamW
+from torch.cuda.amp import autocast
+from torch.optim import swa_utils
 from torch.optim.lr_scheduler import CosineAnnealingWarmRestarts
+from torch.optim.adamw import AdamW
 from torch.utils.data import (DataLoader, RandomSampler, SequentialSampler)
-from torchcontrib.optim.swa import SWA
 
 import utils.constants as constants
 from models.deep_classiflie_module import DeepClassiflie
 from dataprep.dataprep import DatasetCollection
 from training.training_utils import metric_scoring_func, metric_rank, save_ckpt, load_ckpt, compute_metrics, set_seed, \
-    init_fp16_model_opt, TrainingSession, log_tbwriter_metrics, dump_default_thawing_schedule
+    TrainingSession, log_tbwriter_metrics, dump_default_thawing_schedule
 from analysis.inference import Inference
 
 logger = logging.getLogger(constants.APP_NAME)
-
-try:
-    # noinspection PyUnresolvedReferences
-    from apex import amp
-except ImportError as error:
-    logger.debug(f"{error.__class__.__name__}: No apex module found, fp16 will not be available.")
 
 
 class Trainer(object):
     def __init__(self, data: DatasetCollection, config: MutableMapping) -> None:
         self.model = DeepClassiflie(config)
+        self.swa_model = swa_utils.AveragedModel(self.model)
         if config.trainer.dump_model_thaw_sched_only:
             dump_default_thawing_schedule(self.model, f"{config.experiment.dc_base}/thaw_schedules")
             sys.exit(0)
@@ -39,7 +35,7 @@ class Trainer(object):
                                                 self.data.dataset_conf['num_train_recs'],
                                                 self.data.dataset_conf['train_batch_size'])
         if self.training_session.config.trainer.histogram_vars:
-            self.training_session.histogram_vars = {n:p for (n, p) in self.model.named_parameters() if any(
+            self.training_session.histogram_vars = {n: p for (n, p) in self.model.named_parameters() if any(
                 n == v for v in self.training_session.config.trainer.histogram_vars)}
         self.optimizer = self.init_optimizer()
         self.tokenizer = self.data.dataset_conf['albert_tokenizer']
@@ -93,8 +89,7 @@ class Trainer(object):
                 intra_epoch_iterator = tqdm.tqdm(self.training_session.train_dataloader, desc="Iteration")
                 for step, batch in enumerate(intra_epoch_iterator):
                     train_loss = self.train_loop(batch, train_loss)
-                    # Update learning rate schedule
-                    self.training_session.scheduler.step(epoch + (step / len(intra_epoch_iterator)))
+                    self.training_session.scheduler.step()
                 self.train_capture_metrics(train_loss, prev_loss, train_iterator, epoch)
                 prev_loss = train_loss
                 if self.training_session.config.trainer.earlystopping:
@@ -103,7 +98,6 @@ class Trainer(object):
             else:
                 # stopped early, if performing recursive fine-tuning, reload best checkpoint, modify params and continue
                 stop_early = self.recursive_ft_iter()
-
         self.finish_training()
 
     def init_train(self, restart_checkpoint: str = None) -> None:
@@ -114,8 +108,7 @@ class Trainer(object):
         elif restart_checkpoint:
             logger.info(f"Restarting training starting with epoch {self.training_session.config.trainer.next_epoch}, "
                         f"(global step {self.training_session.global_step})")
-            self.model, self.optimizer, _ = load_ckpt(self.model, restart_checkpoint, 'train', self.optimizer,
-                                                      mp=self.training_session.config.trainer.fp16)
+            self.model, self.optimizer, _ = load_ckpt(self.model, restart_checkpoint, 'train', self.optimizer)
         elif self.training_session.fine_tune_scheduler:
             # not restarting and using the fine_tune_scheduler, so must initialize it
             self.ft_config(init_ft=True)
@@ -139,9 +132,6 @@ class Trainer(object):
 
     def init_train_optional_cfg(self, ft_conf):
         if not ft_conf:
-            if self.training_session.config.trainer.fp16:
-                self.model, self.optimizer = \
-                    init_fp16_model_opt(self.model, self.training_session.config.trainer.fp16_opt_level, self.optimizer)
             self.config_scheduler()
         if self.training_session.config.trainer.add_summary:
             # N.B. in order to get add_graph working with some complex models one may need to set check_trace=False
@@ -150,13 +140,11 @@ class Trainer(object):
         if (not self.training_session.fine_tune_scheduler) and \
                 self.training_session.config.trainer.optimizer_params.swa_mode == "last":
             self.training_session.capture_swa_snaps = True
-            self.optimizer = SWA(self.optimizer)
 
     def recursive_ft_restart(self, restart_checkpoint):
         logger.info(f"Restarting training starting with epoch {self.training_session.config.trainer.next_epoch}, "
                     f"(global step {self.training_session.global_step})")
-        self.model, cust_dict = load_ckpt(self.model, restart_checkpoint,
-                                          'train', mp=self.training_session.config.trainer.fp16)
+        self.model, cust_dict = load_ckpt(self.model, restart_checkpoint, 'train')
         curr_depth = cust_dict['fts_state']['curr_depth']
         if cust_dict['fts_state']['curr_depth'] and cust_dict['fts_state']['curr_depth'] > 0:
             self.model, ft_params = self.training_session.fine_tune_scheduler.restart_ft(self.model, curr_depth)
@@ -183,23 +171,25 @@ class Trainer(object):
                   'token_type_ids': batch[2],
                   'ctxt_type': batch[3],
                   'labels': batch[4]}
-        outputs = self.model(**inputs)
-        loss = outputs[0]
-        train_loss += loss.item()
         if self.training_session.config.trainer.fp16:
-            if self.training_session.capture_swa_snaps:
-                with amp.scale_loss(loss, self.optimizer.optimizer) as scaled_loss:
-                    scaled_loss.backward()
-            else:
-                with amp.scale_loss(loss, self.optimizer) as scaled_loss:
-                    scaled_loss.backward()
-            torch.nn.utils.clip_grad_norm_(amp.master_params(self.optimizer),
+            with autocast():
+                outputs = self.model(**inputs)
+                loss = outputs[0]
+            self.training_session.scaler.scale(loss).backward()
+            self.training_session.scaler.unscale_(self.optimizer)
+            train_loss += loss.item()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(),
                                            self.training_session.config.trainer.optimizer_params.max_grad_norm)
+            self.training_session.scaler.step(self.optimizer)
+            self.training_session.scaler.update()
         else:
+            outputs = self.model(**inputs)
+            loss = outputs[0]
+            train_loss += loss.item()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(),
                                            self.training_session.config.trainer.optimizer_params.max_grad_norm)
-        self.optimizer.step()
+            self.optimizer.step()
         self.model.zero_grad()
         self.training_session.global_step += 1
         return train_loss
@@ -209,7 +199,7 @@ class Trainer(object):
                 (((len(train_iterator) - epoch) <= self.training_session.config.trainer.optimizer_params.last_swa_snaps)
                  or (self.training_session.stop_early_test.tests_remaining <=
                      self.training_session.config.trainer.optimizer_params.last_swa_snaps)):
-            self.optimizer.update_swa()
+            self.swa_model.update_parameters(self.model)
             self.training_session.captured_swa_snaps += 1
         # N.B. checkpoint frequency using epoch as opposed to global_step units
         if self.training_session.config.trainer.checkpoint_freq > 0 \
@@ -264,8 +254,7 @@ class Trainer(object):
         if self.training_session.config.experiment.debug.log_model_mem_reports:
             self.training_session.model_mem_rpt.log_report("BEFORE CKPT LOAD")
         # discarding state of the optimizer and starting next level of ft from "scratch"
-        self.model, _ = load_ckpt(self.model, self.training_session.global_best_ckpt[1], 'train',
-                                  mp=self.training_session.config.trainer.fp16)
+        self.model, _ = load_ckpt(self.model, self.training_session.global_best_ckpt[1], 'train')
         if self.training_session.config.experiment.debug.log_model_mem_reports:
             self.training_session.model_mem_rpt.log_report("AFTER CKPT LOAD")
         self.ft_config()
@@ -283,20 +272,15 @@ class Trainer(object):
         if ckpt:
             logger.info(f"Fine tuning scheduler depth is now {self.training_session.fine_tune_scheduler.curr_depth}")
             logger.info(f"Recursive fine tuning continuing using ckpt {ckpt}")
-        if self.training_session.config.trainer.fp16:
-            self.model, self.optimizer = init_fp16_model_opt(self.model,
-                                                             self.training_session.config.trainer.fp16_opt_level,
-                                                             self.optimizer)
-        self.config_scheduler()
+        if not self.training_session.scheduler:
+            self.config_scheduler()
         if self.training_session.fine_tune_scheduler.depth_remaining == 0:
             if self.training_session.config.trainer.optimizer_params.swa_mode == "last":
                 self.training_session.capture_swa_snaps = True
-                self.optimizer = SWA(self.optimizer)
 
     def gen_swa_ckpt(self) -> str:
         if self.training_session.config.trainer.optimizer_params.swa_mode == "last":
             # noinspection PyUnresolvedReferences
-            self.optimizer.swap_swa_sgd()  # swap model weights using swa snapshots at end of training if using swa
             swa_checkpointfile = self.save_progress(swa_ckpts=self.training_session.captured_swa_snaps)
         else:
             swa_checkpointfile = self.swa_ckpt_build()
@@ -366,9 +350,8 @@ class Trainer(object):
         cust_dict = None
         if self.training_session.fine_tune_scheduler:
             cust_dict = {'fts_state': {'curr_depth': self.training_session.fine_tune_scheduler.curr_depth}}
-        amp_state_dict = amp.state_dict() if self.training_session.config.trainer.fp16 else None
         checkpoint_dict_file = save_ckpt(self.training_session.config, self.model, self.model.state_dict(),
-                                         self.optimizer.state_dict(), checkpoint_file, amp_state_dict, cust_dict)
+                                         self.optimizer.state_dict(), checkpoint_file, cust_dict)
         if save_tokenizer:
             # usually no need to save tokenizer config since we'll be using default config,
             # but will save on last checkpoint sometimes just in case (previous tokenizer saves will be overwritten)
@@ -457,18 +440,13 @@ class Trainer(object):
             Inference(self.training_session.config).init_predict(ckpt=ckpt)
 
     def swa_ckpt_build(self, mode: str = "best", ckpt_list: [str] = None) -> str:
-        self.optimizer = SWA(self.optimizer)
         if mode == "best":
             ckpts = [c for (_, c, _) in self.training_session.best_checkpoints]
         else:
             ckpts = ckpt_list
-            self.model, self.optimizer = init_fp16_model_opt(self.model,
-                                                             self.training_session.config.trainer.fp16_opt_level,
-                                                             self.optimizer)
         for ckpt in ckpts:
             self.model, _ = load_ckpt(self.model, ckpt, 'train')
-            self.optimizer.update_swa()
+            self.swa_model.update_parameters(self.model)
             self.training_session.captured_swa_snaps += 1
-            self.optimizer.swap_swa_sgd()  # swap model weights using swa snapshots at end of training if using swa
         swa_checkpointfile = self.save_progress(swa_ckpts=self.training_session.captured_swa_snaps)
         return swa_checkpointfile

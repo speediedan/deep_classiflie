@@ -460,4 +460,3 @@ Feel free to star the [repo]({{  site.github.repository_url  }}) as well if you 
 
 <span class="gh_small"> [View on GitHub]({{  site.github.repository_url  }}) </span>
 
-

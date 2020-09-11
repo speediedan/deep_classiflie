@@ -12,7 +12,7 @@ show_downloads: false
 about_url: about.html
 pred_explorer_url: pred_explorer.html
 perf_explorer_url: perf_explorer.html
-needs_bokeh: true
+current_explorer_url: current_explorer.html
 url: https://deepclassiflie.org
 plugins:
   - jekyll-feed

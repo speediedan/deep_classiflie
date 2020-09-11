@@ -5,6 +5,7 @@ from typing import MutableMapping, Union, Tuple
 
 import torch
 
+
 import utils.constants as constants
 from models.custom_albert_module import AlbertModel
 from training.training_utils import load_old_ckpt, smoothed_label_bce
@@ -64,10 +65,10 @@ class DeepClassiflie(torch.nn.Module):
             return outputs
         else:
             if self.config.trainer.label_smoothing_enabled:
-                loss = smoothed_label_bce(probs.view(-1), labels.view(-1), smoothing=self.config.trainer.smoothing)
+                loss = smoothed_label_bce(logits.view(-1), labels.view(-1), smoothing=self.config.trainer.smoothing)
             else:
-                loss_fct = torch.nn.BCELoss()
-                loss = loss_fct(probs.view(-1), labels.view(-1))
+                loss_fct = torch.nn.BCEWithLogitsLoss()
+                loss = loss_fct(logits.view(-1), labels.view(-1))
             outputs = (loss,) + (probs.detach().cpu(),)
             return outputs  # (loss), (probs)
 
