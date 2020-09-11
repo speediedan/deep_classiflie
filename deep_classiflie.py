@@ -3,9 +3,7 @@ deep_classiflie: Deep Classiflie is a framework for developing ML models that bo
 
 The initial alpha release of Deep Classiflie generates/analyzes a model that continuously classifies a single
 individual's statements (Donald Trump)<sup id="a1">[1](#f1)</sup> using a single ground truth labeling source
-(The Washington Post). For statements the model deems most likely to be labeled falsehoods.
- (see deepclassiflie.org for more detail), the [@DeepClassiflie](https://twitter.com/DeepClassiflie) twitter bot tweets
- out a statement analysis and model interpretation "report"
+(The Washington Post). See deepclassiflie.org for current predictions and to explore the model and its performance.
 @author: Dan Dale, @speediedan
 """
 import logging
@@ -18,6 +16,7 @@ import utils.constants as constants
 from dataprep.dataprep import DatasetCollection
 from utils.core_utils import create_lock_file
 from utils.dc_tweetbot import DCTweetBot
+from utils.dc_infsvc import DCInfSvc
 from utils.envconfig import EnvConfig
 from analysis.inference import Inference
 from analysis.model_analysis_rpt import ModelAnalysisRpt
@@ -33,8 +32,10 @@ def main() -> Optional[NoReturn]:
         _ = DatasetCollection(config)
     elif config.experiment.predict_only and config.inference.pred_inputs:
         Inference(config).init_predict()
+    elif config.experiment.infsvc.enabled:
+        init_dc_service(config, 'infsvc')
     elif config.experiment.tweetbot.enabled:
-        init_tweetbot(config)
+        init_dc_service(config, 'tweetbot')
     elif config.inference.report_mode:
         if not config.experiment.db_functionality_enabled:
             logger.error(f"{constants.DB_WARNING_START} Model analysis reports {constants.DB_WARNING_END}")
@@ -44,14 +45,21 @@ def main() -> Optional[NoReturn]:
         core_flow(config)
 
 
-def init_tweetbot(config: MutableMapping) -> NoReturn:
+def init_dc_service(config:MutableMapping, service_type: str) -> NoReturn:
+    if service_type == 'infsvc':
+        svc_name = 'inference service'
+        svc_module = DCInfSvc
+    else:
+        svc_name = 'tweetbot'
+        svc_module = DCTweetBot
     lock_file = None
     try:
         if not config.experiment.db_functionality_enabled:
-            logger.error(f"{constants.DB_WARNING_START} The tweetbot {constants.DB_WARNING_END}")
+            logger.error(f"{constants.DB_WARNING_START} The {svc_name} {constants.DB_WARNING_END}")
             sys.exit(0)
         lock_file = create_lock_file()
-        DCTweetBot(config)
+        svc_module(config)
+        os.remove(lock_file)
     except KeyboardInterrupt:
         logger.warning('Interrupted bot, removing lock file and exiting...')
         os.remove(lock_file)

@@ -10,7 +10,7 @@ import utils.constants as constants
 import constants as db_constants
 from db_ingest import get_cnxp_handle
 from analysis.inference import Inference
-from db_utils import fetchallwrapper, batch_execute_many
+from db_utils import fetchallwrapper, batch_execute_many, single_execute
 from analysis.interpretation_utils import load_cache
 from analysis.gen_pred_explorer import build_pred_exp_doc
 from analysis.gen_perf_explorer import build_perf_exp_doc
@@ -102,17 +102,25 @@ class ModelAnalysisRpt(object):
         self.config.data_source.train_start_date = datetime.datetime.combine(ds_meta[1], datetime.time())
         self.config.data_source.train_end_date = datetime.datetime.combine(ds_meta[2], datetime.time())
         rpt_tups, stmt_embed_dict = Inference(self.config, analysis_set=analysis_set, rpt_type=rpt_type).init_predict()
-        inserted_rowcnt, error_rows = batch_execute_many(self.cnxp.get_connection(),
-                                                         self.config.inference.sql.save_model_sql, rpt_tups)
-        logger.info(f"Generated {inserted_rowcnt} inference records for analysis of "
-                    f"model version {constants.APP_INSTANCE}")
+        self.persist_rpt_data(rpt_tups)
         self.maybe_build_cache(stmt_embed_dict)
+
+    def persist_rpt_data(self, rpt_tups):
+        inserted_model_rowcnt, _ = batch_execute_many(self.cnxp.get_connection(),
+                                                         self.config.inference.sql.save_model_rpt_sql, rpt_tups)
+        logger.info(f"Generated {inserted_model_rowcnt} inference records for analysis of "
+                    f"model version {constants.APP_INSTANCE}")
+        inserted_model_rowcnt, _ = single_execute(self.cnxp.get_connection(), self.config.inference.sql.save_model_sql)
+        logger.info(f"Generated {inserted_model_rowcnt} global model performance summary for "
+                    f"model version {constants.APP_INSTANCE}")
+        inserted_perf_rowcnt, _ = single_execute(self.cnxp.get_connection(), self.config.inference.sql.save_perf_sql)
+        logger.info(f"Generated {inserted_perf_rowcnt} local performance summary records for "
+                    f"model version {constants.APP_INSTANCE}")
 
     def gen_analysis_set(self) -> List[Tuple]:
         # current use case involves relatively small analysis set that fits in memory and should only be used once
         # so wasteful to persist. if later use cases necessitate, will pickle or persist for larger datasets
         report_sql = f"select * from {self.report_view}"
-        # TODO: remove this unnecessary transformation? should be able to directly return report_sql tuple list now...
         analysis_set = ModelAnalysisRpt.prep_model_analysis_ds(fetchallwrapper(self.cnxp.get_connection(), report_sql))
         return analysis_set
 

@@ -9,6 +9,7 @@ import sys
 
 import psutil
 import torch
+from torch.cuda.amp import GradScaler
 from sklearn.metrics import matthews_corrcoef as mcc, confusion_matrix
 from torch.nn import functional as F
 from torch.optim.optimizer import Optimizer
@@ -24,12 +25,6 @@ from training.model_mem_reporter import MemReporter
 from utils.core_utils import log_config
 
 logger = logging.getLogger(constants.APP_NAME)
-
-try:
-    # noinspection PyUnresolvedReferences
-    from apex import amp
-except ImportError as error:
-    logger.debug(f"{error.__class__.__name__}: No apex module found, fp16 will not be available.")
 
 
 def std_model_thaw_layer(model: torch.nn.Module, inc_depth: int = 1) -> Tuple[torch.nn.Module, List]:
@@ -145,6 +140,8 @@ class TrainingSession:
         if self.config.trainer.earlystopping:
             self.stop_early_test = EarlyStopping(self.config.trainer.earlystopping.monitor_metric,
                                                  self.config.trainer.earlystopping.patience)
+        if self.config.trainer.fp16:
+            self.scaler = GradScaler()
         if self.config.experiment.debug.log_model_mem_reports:
             self.model_mem_rpt = MemReporter(logger_name=constants.APP_NAME)
         log_config(self.config)
@@ -277,8 +274,7 @@ def metric_rank(metric_name: str, score_list: List, curr_metric: Tuple[float],
 
 
 def save_ckpt(experiment_config: MutableMapping, model: torch.nn.Module, model_state_dict: Dict,
-              optimizer_state_dict: Dict, ckpt_dict_file: str, amp_state_dict: bool = None,
-              cust_dict: Dict = None) -> str:
+              optimizer_state_dict: Dict, ckpt_dict_file: str, cust_dict: Dict = None) -> str:
     """ Save current model and optimizer states for training resumption or evaluation
     Arguments:
         experiment_config: configuration dict of the experiment,
@@ -286,7 +282,6 @@ def save_ckpt(experiment_config: MutableMapping, model: torch.nn.Module, model_s
         model_state_dict: state_dict for the model defined here,
         optimizer_state_dict: current training optimizer state,
         ckpt_dict_file: absolute file path to which we save checkpoint dict
-        amp_state_dict: fp16 state_dict if present, containing relevant loss scalers
         cust_dict: a dictionary for passing custom state external to both model and optimizer via checkpoint
     Returns:
         A custom checkpoint dictionary file path. This file includes fp16 state, recursive fine-tuning state,
@@ -296,7 +291,6 @@ def save_ckpt(experiment_config: MutableMapping, model: torch.nn.Module, model_s
         'experiment_config': experiment_config,
         'model_state_dict': model_state_dict,
         'optimizer_state_dict': optimizer_state_dict,
-        'amp_state_dict': amp_state_dict,
         'cust_dict': cust_dict,
     }
     torch.save(checkpoint_dict, ckpt_dict_file)
@@ -305,8 +299,9 @@ def save_ckpt(experiment_config: MutableMapping, model: torch.nn.Module, model_s
 
 
 def load_ckpt(model: torch.nn.Module, checkpoint_file_path: str,
-              mode: str = 'eval', optimizer: Optional[Optimizer] = None,
-              mp: bool = False) -> Union[Tuple[torch.nn.Module, Optimizer, Dict], Tuple[torch.nn.Module, Dict]]:
+              mode: str = 'eval',
+              optimizer: Optional[Optimizer] = None) -> Union[Tuple[torch.nn.Module, Optimizer, Dict],
+                                                              Tuple[torch.nn.Module, Dict]]:
     # Load a pytorch model and optimizer for training resumption or evaluation
     checkpoint_dict = torch.load(checkpoint_file_path)
     model_state_dict = checkpoint_dict['model_state_dict']
@@ -318,14 +313,6 @@ def load_ckpt(model: torch.nn.Module, checkpoint_file_path: str,
     cust_dict = checkpoint_dict.get('cust_dict')
     if optimizer:
         optimizer.load_state_dict(checkpoint_dict['optimizer_state_dict'])
-        # N.B. w/ recursive ft, we're discarding state of the optimizer and starting next level of ft from "scratch",
-        # so restoring the amp_state_dict is not done in that (most common) context
-        if mp:
-            try:
-                from apex import amp
-                amp.load_state_dict(checkpoint_dict['amp_state_dict'])
-            except ImportError as err:
-                logger.debug(f"{err.__class__.__name__}: No apex module found, fp16 will not be available.")
         return model, optimizer, cust_dict
     else:
         return model, cust_dict
@@ -434,17 +421,6 @@ def set_seed(seed: int) -> None:
     torch.manual_seed(seed)
 
 
-def init_fp16_model_opt(model: torch.nn.Module, opt_level: str, optimizer: Optional[Optimizer] = None)\
-        -> Union[Tuple[torch.nn.Module, Optional[Optimizer]], Tuple[torch.nn.Module]]:
-    amp.register_float_function(torch, 'sigmoid')
-    if optimizer:
-        model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
-        return model, optimizer
-    else:
-        model = amp.initialize(model, opt_level=opt_level)
-        return model
-
-
 def compute_metrics(preds: np.ndarray, labels: np.ndarray) -> Dict[str, float]:
     # noinspection PyUnresolvedReferences
     acc_score = (preds == labels).mean()
@@ -478,9 +454,12 @@ def smoothed_label_bce(pred_labels: torch.Tensor, true_labels: torch.Tensor, smo
     assert true_labels.dim() == 1, 'this label smoothing function requires a 1-dim label Tensor to smooth for BCE input'
     assert 0 <= smoothing < 1
     confidence = 1.0 - smoothing
-    raw_signal_losses = F.binary_cross_entropy(pred_labels, true_labels, reduction="none")
-    raw_noise_losses = F.binary_cross_entropy(pred_labels, torch.where(true_labels > 0, torch.zeros_like(true_labels),
-                                                                       torch.ones_like(true_labels)), reduction="none")
+    raw_signal_losses = F.binary_cross_entropy_with_logits(pred_labels, true_labels, reduction="none")
+    # noinspection PyTypeChecker
+    raw_noise_losses = F.binary_cross_entropy_with_logits(pred_labels, torch.where(true_labels > 0,
+                                                                                   torch.zeros_like(true_labels),
+                                                                                   torch.ones_like(true_labels)),
+                                                          reduction="none")
     cum_losses = (confidence * raw_signal_losses + smoothing * raw_noise_losses)
     if reduction == "none":
         return cum_losses
@@ -509,7 +488,7 @@ def log_tbwriter_metrics(training_session: TrainingSession, train_loss: float, p
         training_session.tbwriter.add_scalar(f'MemUsage/cuda_allocated-{constants.MEM_MAG}',
                                              torch.cuda.memory_allocated() / constants.MEM_FACTOR,
                                              training_session.global_step)
-        training_session.tbwriter.add_scalar(f'MemUsage/cuda_cached-{constants.MEM_MAG}',
-                                             torch.cuda.memory_cached() / constants.MEM_FACTOR,
+        training_session.tbwriter.add_scalar(f'MemUsage/cuda_reserved-{constants.MEM_MAG}',
+                                             torch.cuda.memory_reserved() / constants.MEM_FACTOR,
                                              training_session.global_step)
     return training_session

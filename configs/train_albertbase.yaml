@@ -6,8 +6,9 @@ experiment:
 data_source:
   skip_db_refresh: True
 trainer:
-  # restart_training_ckpt: "/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200629114238/checkpoint-0.6178-0-103.pt"
+  # restart_training_ckpt: "/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200826121309/checkpoint-0.6039-11-1236.pt"
   dump_model_thaw_sched_only: False
+  label_smoothing_enabled: True
   # histogram_vars: ['classifier.weight', 'ctxt_embed.weight', 'albert.pooler.weight']
   fine_tune_scheduler:
     thaw_schedule: "DeepClassiflie_thaw_schedule.yaml"

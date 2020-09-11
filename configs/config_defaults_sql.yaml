@@ -1,8 +1,8 @@
 experiment:
   tweetbot:
     sql:
-      stmts_to_analyze_sql: "select * from stmts_to_analyze"
-      tweets_to_analyze_sql: "select * from tweets_to_analyze"
+      stmts_to_analyze_sql: "select * from tweetbot_stmts_to_analyze"
+      tweets_to_analyze_sql: "select * from tweetbot_tweets_to_analyze"
       get_bot_creds_sql: >-
         select consumer_key, consumer_secret, access_token, access_secret from dcbot_creds
       tweets_analyzed_pub_sql: >-
@@ -21,6 +21,28 @@ experiment:
         insert ignore into stmts_analyzed_notpublished
         (tid, sid, arc_report_name, t_date)
         VALUES (%s, %s, %s, CURRENT_TIMESTAMP())
+  infsvc:
+    sql:
+      stmts_to_analyze_sql: "select * from stmts_to_analyze"
+      tweets_to_analyze_sql: "select * from tweets_to_analyze"
+      get_bot_creds_sql: >-
+        select consumer_key, consumer_secret, access_token, access_secret from dcbot_creds
+      get_pinata_creds_sql: >-
+        select api_key, api_secret from pinata_creds
+      get_cloudflare_creds_sql: >-
+        select * from cloudflare_creds
+      save_pinned_cid_sql: >-
+        insert into pinned_cids (pin_svc_id, cid, pinsize, p_date) values (%s, %s, %s, CURRENT_TIMESTAMP())
+      fetch_current_pinned_cid_sql: >-
+        select cid from pinned_cids where p_date=(select max(p_date) from pinned_cids) limit 1
+      tweets_pub_sql: >-
+        insert ignore into infsvc_tweets_published
+        (model_version, iid, thread_id, prediction, raw_pred, raw_confidence, p_date)
+        values (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP());
+      stmts_pub_sql: >-
+        insert ignore into infsvc_stmts_published
+        (model_version, iid, tid, sid, prediction, raw_pred, raw_confidence, p_date)
+        values (%s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP());
 data_source:
   sql:
     debug:
@@ -77,9 +99,11 @@ inference:
     nontweet_model_perf_cache_sql: "select * from nontweet_model_accuracy_lookup_cache"
     global_model_perf_cache_sql: "select * from global_model_accuracy_lookup_cache"
     pred_exp_sql: "select * from pred_explr_stmts"
+    save_model_sql: "insert into model_metadata select * from latest_global_model_perf_summary"
+    save_perf_sql: "insert into local_model_perf_summary_hist select * from latest_local_model_perf_summary"
     ds_md_sql: >-
       select dsid, train_start_date, train_end_date from ds_metadata where ds_type='converged_filtered' order by dsid desc limit 1
-    save_model_sql: >-
+    save_model_rpt_sql: >-
       insert ignore into model_analysis_rpts (model_version, dsid, report_type,
       statement_id, statement_text, stype, sdate, label, prediction, raw_pred)
       values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)

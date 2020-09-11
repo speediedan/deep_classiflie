@@ -113,6 +113,65 @@ blockquote ul li strong {
     font-size: 0.5rem;
 }
 
+table#curr_preds, table.dataTable {
+    width: 100%;
+    font-size: 0.8rem;
+}
+
+table#curr_preds a {
+    text-decoration: none;
+}
+
+div.claim {
+    max-height: 100px;
+    overflow:hidden;
+    min-width: 13rem;
+}
+
+table#curr_preds .falsehood {
+    color: darkred;
+    padding: 0rem;
+}
+
+table#curr_preds .nofalsehood {
+    color: darkgreen;
+    padding: 0rem;
+}
+
+table#curr_preds tr, table#curr_preds td {
+    background: transparent;
+    border: outset;
+    border-width:1px;
+    text-align:center;
+}
+
+.dataTables_length, .dataTables_info, .dt_instructions, .loading_msg {
+    color: #003566;
+}
+
+#progress_bar {
+    left: 35%;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.2em 0.4em;
+}
+
+#curr_preds_length.dataTables_length, #curr_preds_filter.dataTables_filter, .dataTables_info {
+    text-align:left;
+    font-size: 0.8rem;
+    padding-top:0rem;
+}
+#curr_preds_filter.dataTables_filter {
+    padding-bottom: 0.5rem;
+}
+table.curr_preds th {
+    background-color: #003566;
+    color: #ffffff;
+    border: outset;
+    border-width:1px;
+}
+
 .site-footer {
     visibility: hidden;
 }
@@ -230,10 +289,25 @@ body {
     color: #000;
     padding-top: 5px;
     padding-bottom:0px;
-    max-width: min-content;
+    max-width: max-content;
     display: inline-flex;
     float: left;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0px;
+}
+
+.cust-nav-wrap ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: 0px;
+    padding-left: 0px;
+    padding-bottom:0px;
+}
+.cust-nav-wrap li {
+    display: block;
+    list-style-type: none;
+    padding-top: 0.3rem;
+    margin-left: 0.2rem;
 }
 
 details strong {
@@ -241,7 +315,7 @@ font-weight: bold;
 color: #003566;
 }
 .cust-nav-wrap :first-child {
-    margin-top: 4px;
+    margin-top: 0px;
 }
 
 .main-content {
@@ -437,6 +511,47 @@ a:hover, a:active {
     font-weight: bold;
 }
 
+.dt_instructions, .loading_msg {
+    margin-left: 0rem;
+    font-size: 1.0rem;
+    font-weight: bold;
+    font-family: 'Humor Sans';
+}
+
+.paginate_button {
+    font-size: 0.8rem;
+}
+
+.outer_container .curr_preds, #curr_preds_wrapper {
+    font-family: 'Humor Sans';
+}
+
+.ldBar-label {
+    color: green;
+    font-family: 'varela round';
+    font-size: 1.2em;
+    //font-weight: 900;
+  }
+
+.ldBar.label-center > .ldBar-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-family: 'humor sans';
+    }
+
+.ldBar path.mainline {
+    stroke-width: 10;
+    stroke: #000356;
+    stroke-linecap: round;
+}
+.ldBar path.baseline {
+    stroke-width: 14;
+    stroke: #f1f2f3;
+    stroke-linecap: round;
+    filter:url(#custom-shadow);
+}
+
 .stmt_title {
     margin-left: 0rem;
     font-size: 0.8rem;
@@ -612,6 +727,17 @@ details[open] summary:after {
         margin-left: 0rem;
         font-size: 1.1rem;
     }
+    .dt_instructions, .loading_msg {
+        margin-left: 0rem;
+        font-size: 1.2rem;
+    }
+    #progress_bar {
+        left: unset;
+        margin-left: 2rem;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 0.2em 0.4em;
+    }
     .stmt_title {
         margin-left: 0rem;
         font-size: 1.1rem;
@@ -675,7 +801,7 @@ details[open] summary:after {
     .cust-nav-wrap {
         float: unset;
         display: flex;
-}
+    }
     .footnotes {
         font-size: 0.8rem;
     }
@@ -700,6 +826,27 @@ details[open] summary:after {
         left: 1.5rem;
         float: left;
         margin-right: 1.0rem;
+    }
+    div.claim {
+        height: unset;
+        overflow:hidden;
+        text-align: left;
+    }
+   table.dataTable tbody td {
+        padding: 0rem 0.2rem;
+        margin: 0rem 0rem;
+    }
+    table#curr_preds, table.dataTable {
+        width: 100%;
+        font-size: 1.0rem;
+    }
+    #curr_preds_length.dataTables_length, #curr_preds_filter.dataTables_filter, .dataTables_info {
+        text-align:left;
+        font-size: 1.0rem;
+        padding-bottom: 0.5rem;
+    }
+    .paginate_button {
+    font-size: 1.0rem;
     }
 }
 
@@ -728,6 +875,7 @@ details[open] summary:after {
     color: #ffffff;
     /*    background:linear-gradient(to bottom, #e4685d 5%, #cc5500 100%); #e4685d*/
     }
+
 
 .outer_container .bk-root .bk-tabs-header.bk-above .bk-tab {
   color: #003566;
@@ -909,10 +1057,6 @@ ol {
     border: 0;
     overflow: auto;
 }
-
-
-
-
 
 .highlight .nt {
     color: #82B1FF;

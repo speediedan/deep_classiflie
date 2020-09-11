@@ -1,0 +1,39 @@
+---
+layout: default
+needs_datatables: true
+title: Current Deep Classiflie Predictions
+permalink: /current_explorer
+---
+<div class="outer_container">
+    <div class="dt_instructions">Latest Deep Classiflie Predictions<sup id="a0" class="small"><a href="#f0">[0]</a></sup></div>
+    <div class="loading_msg">Loading latest predictions from IPFS...</div>
+    <div id="progress_bar" class="label-center"> </div>
+    <table id="curr_preds" class="curr_preds">
+            <thead>
+                <tr>
+                    <th><div class="claim">Claim</div></th>
+                    <th>Prediction</th>
+                    <th> Local Acc.</th>
+                    <!--<th> Projected Acc</th>-->
+                    <th>PPV</th>
+                    <th>NPV</th>
+                    <th>PPR</th>
+                    <th>NPR</th>
+                    <th>TP</th>
+                    <th>TN</th>
+                    <th>FP</th>
+                    <th>FN</th>
+                    <th>Claim Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+</div>
+<div class="footnotes">
+    <ol>
+        <li id="f0"> <span class="fnum">[0]</span> New predictions are continuously generated and added to <a href="https://ipfs.io/">ipfs</a> as statements are issued. Twitter statements will be delayed by ~15 minutes to allow thread-based scoring.
+            <a href="https://factba.se/">Factba.se</a> is polled for new statements every 10 minutes. See <a href="{{ site.about_url }}#model-exploration">relevant about page section</a> for additional context <a href="#a0">↩</a></li>
+    </ol>
+</div>
+<script src="/assets/js/current_pred_nav.js"></script>

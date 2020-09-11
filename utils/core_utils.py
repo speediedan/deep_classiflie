@@ -58,7 +58,7 @@ def create_lock_file() -> Union[str, NoReturn]:
         with open(lock_file, 'w') as lf:
             lf.write(f'{psutil.Process()}')
     else:
-        logger.error(f'Lock file "{lock_file}" exists, first stop existing process using kill_dcbot or SIGINT')
+        logger.error(f'Lock file "{lock_file}" exists, first stop existing process')
         sys.exit(0)
     return lock_file
 
@@ -89,6 +89,11 @@ def pickle_obj(path: str, targ_obj: Any) -> str:
     return path
 
 
+def to_json(var: Any) -> str:
+    json_data = json.dumps(var, indent=4, default=datetime_serde)
+    return json_data
+
+
 def save_json(var: Any, filename: str) -> None:
     json_data = json.dumps(var, indent=4, default=datetime_serde)
     with open(filename, 'w') as file:
@@ -101,9 +106,13 @@ def datetime_serde(obj: Any) -> str:
         return obj.__str__()
 
 
-def load_json(filename: str) -> Dict:
+def load_json(filename: os.PathLike) -> Dict:
+    json_data = None
     # open the file as read only
-    with open(filename, 'r') as f:
-        # read all text
-        json_data = json.load(f)
+    try:
+        with open(filename, 'r') as f:
+            # read all text
+            json_data = json.load(f)
+    except FileNotFoundError:
+        logger.debug(f'No json data found at {str}, proceeding w/o the cache may result in an error')
     return json_data

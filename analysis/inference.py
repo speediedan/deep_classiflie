@@ -7,19 +7,15 @@ import tqdm
 
 import utils.constants as constants
 from models.deep_classiflie_module import DeepClassiflie
-from analysis.inference_utils import tokens_to_sentence, gen_embed_mappings, prep_mapping_tups, \
-    prep_base_mapping_tups, pred_inputs_from_config, pred_inputs_from_test, prep_rpt_tups, prep_pred_exp_tups
+from analysis.inference_utils import tokens_to_sentence, gen_embed_mappings, prep_mapping_tups, prep_base_mapping_tups,\
+    pred_inputs_from_config, pred_inputs_from_test, prep_rpt_tups, prep_pred_exp_tups, prep_batchpred_tups
 from utils.core_utils import log_config
+from torch.utils.data import DataLoader
 from training.training_utils import load_ckpt
 from analysis.inference_utils import InferenceSession
 from analysis.interpretation import InterpretTransformer
 
 logger = logging.getLogger(constants.APP_NAME)
-
-try:
-    from apex import amp
-except ImportError as error:
-    logger.debug(f"{error.__class__.__name__}: No apex module found, fp16 will not be available.")
 
 
 class Inference(object):
@@ -30,7 +26,7 @@ class Inference(object):
         self.inf_session = InferenceSession(config, mapping_set, analysis_set, pred_exp_set, rpt_type, base_mode)
 
     def init_predict(self, model: torch.nn.Module = None, ckpt: str = None, tokenizer: PreTrainedTokenizer = None,
-                     eval_tuple: Tuple = None) -> Union[Tuple[List[Tuple], Optional[Dict]], Dict, List[Tuple]]:
+                     eval_tuple: Tuple = None) -> Union[Tuple[List[Tuple], Optional[Dict]], Dict, List[Tuple], List]:
         ckpt = self.init_predict_model(model, ckpt)
         self.init_predict_tokenizer(tokenizer, ckpt)
         self.config_interpretation()
@@ -41,6 +37,9 @@ class Inference(object):
             return self.pred_exp_viz(pred_inputs)
         elif self.inf_session.mapping_set:
             return gen_embed_mappings(self.inf_session, pred_inputs)
+        elif self.inf_session.config.experiment.infsvc.enabled:
+            inf_outputs = self.batch_predict(pred_inputs)
+            return inf_outputs
         elif self.inf_session.config.inference.interpret_preds and self.inf_session.config.experiment.tweetbot.enabled:
             unpublished_reports = self.predict_viz(pred_inputs)
             return unpublished_reports
@@ -86,7 +85,7 @@ class Inference(object):
                                                                      self.inf_session.model, self.inf_session.tokenizer,
                                                                      self.inf_session.device, pred_report_path)
 
-    def prep_pred_inputs(self, eval_tuple: Tuple) -> List[Dict]:
+    def prep_pred_inputs(self, eval_tuple: Tuple) -> Union[List[Dict], DataLoader]:
         if not (eval_tuple or self.inf_session.config.inference.pred_inputs or self.inf_session.analysis_set
                 or self.inf_session.mapping_set or self.inf_session.pred_exp_set):
             raise ValueError("init_predict must be provided inputs via either test set samples,"
@@ -99,6 +98,8 @@ class Inference(object):
             pred_inputs = prep_base_mapping_tups(self.inf_session)
         elif self.inf_session.mapping_set:
             pred_inputs = prep_mapping_tups(self.inf_session)
+        elif self.inf_session.config.experiment.infsvc.enabled:
+            pred_inputs = prep_batchpred_tups(self.inf_session)
         elif eval_tuple:
             num_samples = self.inf_session.config.inference.sample_predictions
             pred_inputs = pred_inputs_from_test(self.inf_session, eval_tuple, num_samples)
@@ -126,6 +127,23 @@ class Inference(object):
                 logger.info(
                     f"PREDICTION: {prob} ({round(prob)}), actual label: {round(label)}"
                     f" INPUT: {parsed_sent} ")
+
+    def batch_predict(self, pred_inputs: DataLoader) -> List:
+        self.inf_session.model.set_interpret_mode()
+        batch_inf_outputs = []
+        pred_batch_iterator = tqdm.tqdm(pred_inputs, desc="Batch")
+        for i, batch in enumerate(pred_batch_iterator):
+            batch = tuple(t.to(self.inf_session.device) for t in batch)
+            with torch.no_grad():
+                inputs = {'input_ids': batch[0],
+                          'attention_mask': batch[1],
+                          'token_type_ids': batch[2],
+                          'position_ids': batch[3],
+                          'ctxt_type': batch[4],
+                          'labels': None}
+                probs = (self.inf_session.model(**inputs))
+                batch_inf_outputs.extend([round(p.squeeze(0).item(), 4) for p in probs])
+        return batch_inf_outputs
 
     def predict_viz(self, pred_inputs: List[Dict]) -> List[Tuple]:
         for sample in tqdm.tqdm(pred_inputs, desc=f'Interpreting {len(pred_inputs)} '
@@ -179,8 +197,6 @@ class Inference(object):
         for sample in tqdm.tqdm(pred_inputs, desc=f"Generating report using {len(pred_inputs)} samples"):
             input_embedding, inputs, probs, token_list, prob = self.pass_interpretable_inputs(sample)
             token_list = list(filter(lambda l: l not in self.inf_session.special_token_mask, token_list))
-            # all records should have a label ("True" unless explicitly labeled false by wapo) unless
-            # using "gt, ground truth" version of scoring (model_rpt_all_tweet_data_gt)
             label = sample['labels'].item() if sample['labels'] in [0, 1] else None
             parsed_sent = tokens_to_sentence(self.inf_session, token_list)
             # include only training data in the statement embedding
