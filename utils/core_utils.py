@@ -94,8 +94,8 @@ def to_json(var: Any) -> str:
     return json_data
 
 
-def save_json(var: Any, filename: str) -> None:
-    json_data = json.dumps(var, indent=4, default=datetime_serde)
+def save_json(var: Any, filename: str, already_json: bool = False) -> None:
+    json_data = json.dumps(var, indent=4, default=datetime_serde) if not already_json else var
     with open(filename, 'w') as file:
         for line in json_data.split('\n'):
             file.write(line + '\n')

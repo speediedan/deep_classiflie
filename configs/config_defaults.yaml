@@ -12,6 +12,8 @@ experiment:
     dcbot_poll_interval: 180
   infsvc:
     enabled: False
+    init_wait: 900
+    max_retries: 8 # give service 2+ days to recover by default
     batch_mode: True
     batch_size: 16
     thread_latency: 900

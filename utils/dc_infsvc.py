@@ -4,6 +4,7 @@ import os
 import time
 import traceback
 import sys
+import math
 from collections import defaultdict
 from decimal import Decimal
 from pathlib import Path
@@ -52,7 +53,8 @@ class DCInfSvc(object):
 
     def batch_inference(self) -> None:
         if not self.config.experiment.infsvc.skip_db_refresh:
-            refresh_db(self.config.data_source.db_conf, self.cnxp, self.infsvc_dbconf, self.svc_auth['twitter'], batch_infsvc=True)
+            refresh_db(self.config.data_source.db_conf, self.cnxp, self.infsvc_dbconf, self.svc_auth['twitter'],
+                       batch_infsvc=True)
         self.publish_flow()
 
     def poll_and_analyze(self) -> NoReturn:
@@ -112,8 +114,9 @@ class DCInfSvc(object):
         tweet_inf_outputs, stmt_inf_outputs = self.build_inf_outputs(inf_probs, inf_metadata, perf_keys)
         all_inf_outputs = stmt_inf_outputs + tweet_inf_outputs
         if not(self.pinned_preds_cache.exists()):
-            save_json(all_inf_outputs, self.pinned_preds_cache)
             pin_flow_success = self.pin_flow(all_inf_outputs)
+            if pin_flow_success:
+                save_json(all_inf_outputs, self.pinned_preds_cache)
         else:
             existing_preds = load_json(self.pinned_preds_cache)
             # noinspection PyUnresolvedReferences
@@ -172,17 +175,43 @@ class DCInfSvc(object):
 
     @staticmethod
     def prep_logging(stmt_outputs: List, tweet_outputs: List) -> Tuple[List[Tuple], List[Tuple]]:
-        iid = 1 # currently only one issuer id
+        iid = 1  # currently only one issuer id
         stmt_tups = []
         tweet_tups = []
         for d in stmt_outputs:
-            stmt_tups.append((d['model_version'], iid, d['tid'], d['sid'], d['prediction'], d['raw_pred'], d['raw_confidence']))
+            stmt_tups.append((d['model_version'], iid, d['tid'], d['sid'], d['prediction'], d['raw_pred'],
+                              d['raw_confidence']))
         for d in tweet_outputs:
-            tweet_tups.append((d['model_version'], iid, d['thread_id'], d['prediction'], d['raw_pred'], d['raw_confidence']))
+            tweet_tups.append((d['model_version'], iid, d['thread_id'], d['prediction'], d['raw_pred'],
+                               d['raw_confidence']))
         return stmt_tups, tweet_tups
 
-    def pin_cid(self, cid_json: List, headers: Dict) -> Tuple[Tuple, int, int]:
-        r = requests.post(constants.PINATA_PINJSON_ENDPOINT, headers=headers, data=to_json(cid_json))
+    def post_w_backoff(self, endpoint: str, headers: Dict, cid_json: str) -> requests.Response:
+        retries = 0
+        max_retries = self.config.experiment.infsvc.max_retries
+        while True:
+            cid_json = cid_json.replace('\n', '')
+            r = requests.post(endpoint, headers=headers, data=cid_json)
+            if r.ok:
+                return r
+            else:
+                if retries < max_retries:
+                    sleep_time = self.config.experiment.infsvc.init_wait * math.pow(2, retries)
+                    logger.warning(
+                        f"Encountered error ({r.reason}) posting json to pinata, retrying again in {sleep_time} "
+                        f"seconds")
+                    time.sleep(sleep_time)
+                    retries += 1
+                else:
+                    logger.error(
+                        f"Max retries ({max_retries}) reached and post to pinata is still failing with {r.reason}. "
+                        f"Exiting inference service.")
+                    raise KeyboardInterrupt
+
+    def pin_cid(self, preds: List, headers: Dict) -> Tuple[Tuple, int, int]:
+        cid_json = to_json(preds)
+        r_tup = tuple((constants.PINATA_PINJSON_ENDPOINT, headers, cid_json))
+        r = self.post_w_backoff(*r_tup)
         pinata_response = r.json()
         pinned_tup = tuple((1, pinata_response['IpfsHash'], pinata_response['PinSize']))
         pin_cnt, pin_error = single_execute(self.cnxp.get_connection(),
@@ -199,14 +228,14 @@ class DCInfSvc(object):
             logger.warning(f'Unexpected status code {r.status_code} while unpinning hash: {target_cid}')
             return False
 
-    def pin_flow(self, cid_json: List, rm_previous: bool = False) -> bool:
+    def pin_flow(self, preds: List, rm_previous: bool = False) -> bool:
         current_cid = None
-        headers = {'Content-Type': 'application/json',
-                   'pinata_api_key': self.svc_auth['pinata'][0], 'pinata_secret_api_key': self.svc_auth['pinata'][1]}
+        headers = {'pinata_api_key': self.svc_auth['pinata'][0],
+                   'pinata_secret_api_key': self.svc_auth['pinata'][1], 'Content-Type': 'application/json'}
         if rm_previous:
             current_cid = fetch_one(self.cnxp.get_connection(),
                                     self.config.experiment.infsvc.sql.fetch_current_pinned_cid_sql)
-        pinned_tup, pin_cnt, pin_error = self.pin_cid(cid_json, headers)
+        pinned_tup, pin_cnt, pin_error = self.pin_cid(preds, headers)
         if pin_cnt == 1 and pin_error == 0:
             logger.info(f'Pinned latest unlabeled model predictions {pinned_tup[1]} with size {pinned_tup[2]}')
             self.patch_dns(pinned_tup[1])
