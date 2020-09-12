@@ -440,15 +440,15 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 ### Citing Deep Classiflie
 Please cite:
 ```tex
-@misc{Dan_Dale_2020_3995079,
+@misc{Dan_Dale_2020_4025492,
     author       = {Dan Dale},
     title        = {% raw %}{{Deep Classiflie: Shallow fact-checking with deep neural networks}}{% endraw %},
-    month        = aug,
+    month        = sep,
     year         = 2020,
-    doi          = {10.5281/zenodo.3995079},
-    version      = {v0.1.0-alpha},
+    doi          = {10.5281/zenodo.4025492},
+    version      = {v0.1.1-alpha},
     publisher    = {Zenodo},
-    url          = {https://zenodo.org/record/3995079}
+    url          = {https://zenodo.org/record/4025492}
     }
 ```
 Feel free to star the [repo]({{  site.github.repository_url  }}) as well if you find it useful or interesting. Thanks!
