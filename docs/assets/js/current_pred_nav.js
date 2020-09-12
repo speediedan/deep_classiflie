@@ -70,13 +70,14 @@ async function loadJSON(latest_recs) {
     catch(err) {
         console.log("Failed loading from primary gateway "+latest_recs[0]+" attempting to fetch from backup "+latest_recs[1]);
         await $("#progress_bar").toggle();
-        $( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from primary gateway:<br/> "+latest_recs[0]+
-            ".<br/>Attempting to fetch from backup <br/>"+
-            latest_recs[1]+"...</span>" );
+        //$( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from primary gateway:<br/> "+latest_recs[0]+
+        //    ".<br/>Attempting to fetch from backup <br/>"+
+        //    latest_recs[1]+"...</span>" );
         try {
             response = await fetchTimeout(latest_recs[1], 10000);
         }
         catch(err) {
+            await $("#progress_bar").toggle();
             console.log("Failed loading from backup gateway "+latest_recs[1]+". Falling back to local cache: "+latest_recs[2]);
             $( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from backup gateway "+latest_recs[1]+
                 ".<br/>Falling back to local cache <br/>"+
@@ -96,8 +97,9 @@ function dec_fmt( data, type, row ) {
 async function add_table_func() {
     let curr_json = {};
     var num_fmt = ['', '.', 2, ''];
-    const latest_recs = ["https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org",
-    "https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
+    const latest_recs = ["https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org",
+    "https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
+    await $("#progress_bar").toggle(); // disable progress bar unless we fallback to pinata gateway
     curr_json = await loadJSON(latest_recs);
     var datatab = $('#curr_preds').DataTable( {
         data: curr_json,
@@ -153,8 +155,8 @@ async function load_latest(){
     await $(".dt_instructions").toggle();
     var datatab = await add_table_func();
     await $(".loading_msg").toggle();
-    await $(".dt_instructions").toggle();
     await $("#progress_bar").hide();
+    await $(".dt_instructions").toggle();
     window.dispatchEvent(new Event('resize'));
 
 }

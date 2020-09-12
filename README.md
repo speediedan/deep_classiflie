@@ -82,7 +82,7 @@ The best way to start understanding/exploring the current model is to use the ex
 
 Explore current predictions of the latest model. All statements that have yet to be labeled by the currently used fact-checking sources (only [Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database) at present) are available. 
 
-Live predictions are continuously added via [ipfs](https://ipfs.io). Twitter statements will be delayed by ~15 minutes to allow thread-based scoring. [Factba.se](https://factba.se) is polled for new statements every 15 minutes. 
+Live predictions are continuously added via [ipfs](https://ipfs.io). Twitter is polled for new statements every 3 minutes, [Factba.se](https://factba.se/) every 15 minutes.
 
 This explorer provides fact-checkers a means (one of many possible) of using current model predictions and may also help those building fact-checking systems evaluate the potential utility of integrating similar models into their systems.
 
