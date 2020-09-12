@@ -134,6 +134,7 @@ div.claim {
     max-height: 100px;
     overflow:hidden;
     min-width: 13rem;
+    text-align: left;
 }
 
 table#curr_preds .falsehood {
@@ -839,7 +840,6 @@ details[open] summary:after {
     div.claim {
         height: unset;
         overflow:hidden;
-        text-align: left;
     }
    table.dataTable tbody td {
         padding: 0rem 0.2rem;
@@ -1040,6 +1040,10 @@ ol {
     font-size: 12px;
     background: none;
     font-style: italic;
+}
+
+table.curr_preds th sup a{
+    color: #ffffff;
 }
 
 .main-content pre {

@@ -5,10 +5,10 @@ experiment:
   dataprep_only: True
   debug:
     debug_enabled: True
-    use_debug_dataset: True
+    use_debug_dataset: False
 data_source:
   # db_conf must be explictly specified only in dev mode or if db_conf is in a non-default location
-  db_conf: "/home/speediedan/repos/edification/deep_classiflie_db_feat/deep_classiflie_db.yaml"
+  # db_conf: "/home/speediedan/repos/edification/deep_classiflie_db_feat/deep_classiflie_db.yaml"
   model_filter_topk: 20
   filter_w_embed_cache: False
   # safest way to build a new dataset is to verify backup of the previous one and remove the relevant cache softlink

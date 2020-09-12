@@ -100,7 +100,7 @@ inference:
     global_model_perf_cache_sql: "select * from global_model_accuracy_lookup_cache"
     pred_exp_sql: "select * from pred_explr_stmts"
     save_model_sql: "insert into model_metadata select * from latest_global_model_perf_summary"
-    save_perf_sql: "insert into local_model_perf_summary_hist select * from latest_local_model_perf_summary"
+    save_perf_sql: "insert ignore into local_model_perf_summary_hist select * from latest_local_model_perf_summary"
     ds_md_sql: >-
       select dsid, train_start_date, train_end_date from ds_metadata where ds_type='converged_filtered' order by dsid desc limit 1
     save_model_rpt_sql: >-

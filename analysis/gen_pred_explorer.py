@@ -38,7 +38,6 @@ def init_radio_groups() -> Tuple[RadioButtonGroup, ...]:
 
 
 def init_explorer_divs(pred_stmt_dict: Dict) -> Tuple[Div, ...]:
-    # stmt_attr, word_import_html, max_word_html
     default_idx = min([i for i, (b, c) in enumerate(zip(pred_stmt_dict['bucket_type'], pred_stmt_dict['tp']))
                        if b == 'max_acc_nontweets' and c == 1])
     word_import_div = Div(text=pred_stmt_dict['pred_exp_attr_tups'][default_idx][1], height_policy='max',

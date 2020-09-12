@@ -196,7 +196,7 @@ def fmt_notes_box(ext_rec: Tuple) -> str:
     <li>prediction of whether Washington Post's Fact Checker will add this claim to its "Trump False Claims" DB</li>
     <li>if claim was included in WP's Fact Checker false claims DB at time of original model training</li>
     <li>accuracy estimated by sorting & bucketing the test set sigmoid outputs, averaging performance in each bucket
-    <li>global metrics relate to the current model's performance on a test set comprised of ~12K statements made between 
+    <li>global metrics relate to the current model's performance on a test set comprised of ~13K statements made between 
     {ext_rec[5][13].strftime('%Y-%m-%d')} and {ext_rec[5][14].strftime('%Y-%m-%d')}. Training, validation and test sets 
     are chronologically disjoint. </li>
     <li>subject to interpretability filter, some subword tokens have been omitted to facilitate interpretability</li>
@@ -259,7 +259,7 @@ def gen_pred_exp_attr_tup(datarecord: VisualizationDataRecord, ext_rec: Tuple, t
 
 
 def pred_exp_attr(datarecords: List[VisualizationDataRecord], ext_recs: List[Tuple] = None, token_mask: List = None,
-                  invert_colors: bool = False) -> Tuple[List, Tuple]:
+                  invert_colors: bool = False, **_) -> Tuple[List, Tuple]:
     global_metrics_summ = ext_recs[0][8]
     pred_exp_tups = []
     for i, (datarecord, ext_rec) in enumerate(zip(datarecords, ext_recs)):

@@ -74,15 +74,15 @@ class ModelAnalysisRpt(object):
         pred_exp_tups = fetchallwrapper(self.cnxp.get_connection(), self.config.inference.sql.pred_exp_sql)
         pred_exp_set = []
         pred_exp_ds = OrderedDict({'bucket_type': [], 'bucket_acc': [], 'conf_percentile': [], 'pos_pred_acc': [],
-                                  'neg_pred_acc': [], 'pos_pred_ratio': [], 'neg_pred_ratio': [], 'statement_id': [],
-                                  'statement_text': [], 'tp': [], 'tn': [], 'fp': [], 'fn': []})
+                                   'neg_pred_acc': [], 'pos_pred_ratio': [], 'neg_pred_ratio': [], 'statement_id': [],
+                                   'statement_text': [], 'tp': [], 'tn': [], 'fp': [], 'fn': []})
         for (bucket_type, bucket_acc, conf_percentile, pos_pred_acc, neg_pred_acc, pos_pred_ratio, neg_pred_ratio,
              statement_id, statement_text, ctxt_type, tp, tn, fp, fn) in pred_exp_tups:
             label = 'False' if tp == 1 or fn == 1 else 'True'
             pred_exp_set.append((statement_text, ctxt_type, label))
             for k, v in zip(list(pred_exp_ds.keys()), [bucket_type, bucket_acc, conf_percentile, pos_pred_acc,
-                                                      neg_pred_acc, pos_pred_ratio, neg_pred_ratio, statement_id,
-                                                      statement_text, tp, tn, fp, fn]):
+                                                       neg_pred_acc, pos_pred_ratio, neg_pred_ratio, statement_id,
+                                                       statement_text, tp, tn, fp, fn]):
                 pred_exp_ds[k].append(v)
         pred_exp_attr_tups, global_metric_summ = Inference(self.config, pred_exp_set=pred_exp_set).init_predict()
         pred_exp_ds['pred_exp_attr_tups'] = pred_exp_attr_tups

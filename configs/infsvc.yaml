@@ -1,5 +1,5 @@
 experiment:
-  inference_ckpt: "/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200901084410/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
+  inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200911144157/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
   db_functionality_enabled: True
   debug:
     debug_enabled: True
@@ -8,6 +8,6 @@ experiment:
     publish: True
     batch_mode: False
     skip_db_refresh: False
-data_source:
+#data_source:
   # db_conf must be explictly specified only in dev mode or if db_conf is in a non-default location
-  db_conf: "/home/speediedan/repos/edification/deep_classiflie_db_feat/deep_classiflie_db.yaml"
+  # db_conf: "/home/speediedan/repos/edification/deep_classiflie_db_feat/deep_classiflie_db.yaml"
