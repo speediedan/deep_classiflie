@@ -8,7 +8,7 @@ async function checkNew(latest_recs){
     return headers;
     }
 
-async function wait(ms) {
+function wait(ms) {
   return new Promise(resolve => {
     setTimeout(resolve, ms);
   });
@@ -28,7 +28,7 @@ function config_progbar(){
 async function readStreamResponse(response) {
     let pct_progress = 0;
     let bar = await config_progbar();
-    const reader = await response.body.getReader();
+    const reader = response.body.getReader();
     const contentLength = +response.headers.get('Content-Length');
     let receivedLength = 0;
     let chunks = [];
@@ -37,11 +37,11 @@ async function readStreamResponse(response) {
         if (done) {
             break;
         }
-        chunks.push(value);
+        await chunks.push(value);
         receivedLength += value.length;
         pct_progress = Math.round((receivedLength/contentLength)*100);
+        await wait(30);
         await bar.set(pct_progress);
-        await wait(20);
     }
     let chunksAll = new Uint8Array(receivedLength);
     let position = 0;
@@ -53,36 +53,27 @@ async function readStreamResponse(response) {
 
 }
 
-function fetchTimeout(url, ms){
-    const controller = new AbortController();
-    var signal = controller.signal;
-    const promise = fetch(url, { signal });
-    const timeout = setTimeout(() => controller.abort(), ms);
-    return promise.finally(() => clearTimeout(timeout));
-}
-
-
 async function loadJSON(latest_recs) {
     let response = {};
     try {
-        response = await fetchTimeout(latest_recs[0], 10000);
+        response = await fetch(latest_recs[0]);
     }
     catch(err) {
         console.log("Failed loading from primary gateway "+latest_recs[0]+" attempting to fetch from backup "+latest_recs[1]);
-        await $("#progress_bar").toggle();
-        //$( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from primary gateway:<br/> "+latest_recs[0]+
-        //    ".<br/>Attempting to fetch from backup <br/>"+
-        //    latest_recs[1]+"...</span>" );
+        await $("#progress_bar").toggle(); // disable progress bar for secondary gateway
+        $( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from primary gateway:<br/> "+latest_recs[0]+
+            ".<br/>Attempting to fetch from backup <br/>"+
+            latest_recs[1]+"...</span>" );
         try {
-            response = await fetchTimeout(latest_recs[1], 10000);
+            response = await fetch(latest_recs[1]);
         }
         catch(err) {
-            await $("#progress_bar").toggle();
+            //await $("#progress_bar").toggle(); primary remains pinata
             console.log("Failed loading from backup gateway "+latest_recs[1]+". Falling back to local cache: "+latest_recs[2]);
             $( ".loading_msg" ).html( "<span class=\"footnotes\">Failed loading from backup gateway "+latest_recs[1]+
                 ".<br/>Falling back to local cache <br/>"+
                 latest_recs[2]+"...</span>" );
-            response = await fetchTimeout(latest_recs[2], 10000);
+            response = await fetch(latest_recs[2]);
         }
     }
     let result = await readStreamResponse(response);
@@ -97,9 +88,9 @@ function dec_fmt( data, type, row ) {
 async function add_table_func() {
     let curr_json = {};
     var num_fmt = ['', '.', 2, ''];
-    const latest_recs = ["https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org",
-    "https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
-    await $("#progress_bar").toggle(); // disable progress bar unless we fallback to pinata gateway
+    const latest_recs = ["https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org",
+    "https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
+    //await $("#progress_bar").toggle(); // leave progress bar enabled, using pinata gateway as primary for now
     curr_json = await loadJSON(latest_recs);
     var datatab = $('#curr_preds').DataTable( {
         data: curr_json,
