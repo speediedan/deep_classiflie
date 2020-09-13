@@ -108,11 +108,15 @@ class DCInfSvc(object):
                          f" {repr(traceback.format_exception(exc_type, exc_value, exc_traceback))}")
         return api
 
+    def apply_pin_limit(self, cid_list: List) -> List:
+        return cid_list[-self.config.experiment.infsvc.pinata_pin_limit:] if len(cid_list) > 5000 else cid_list
+
     def publish_inference(self, inf_probs: List, inf_metadata: Dict) -> None:
         perf_keys = ['model_version', 'bucket_acc', 'global_acc', 'global_auc', 'global_mcc', 'ppv', 'npv', 'ppr',
                      'npr', 'tp_ratio', 'tn_ratio', 'fp_ratio', 'fn_ratio', 'test_start_date', 'test_end_date']
         tweet_inf_outputs, stmt_inf_outputs = self.build_inf_outputs(inf_probs, inf_metadata, perf_keys)
         all_inf_outputs = stmt_inf_outputs + tweet_inf_outputs
+        all_inf_outputs = self.apply_pin_limit(all_inf_outputs)
         if not(self.pinned_preds_cache.exists()):
             pin_flow_success = self.pin_flow(all_inf_outputs)
             if pin_flow_success:
@@ -120,7 +124,7 @@ class DCInfSvc(object):
         else:
             existing_preds = load_json(self.pinned_preds_cache)
             # noinspection PyUnresolvedReferences
-            new_preds = existing_preds + all_inf_outputs
+            new_preds = self.apply_pin_limit(existing_preds + all_inf_outputs)
             pin_flow_success = self.pin_flow(new_preds, rm_previous=True)
             if pin_flow_success:
                 save_json(new_preds, self.pinned_preds_cache)

@@ -75,7 +75,7 @@ Explore the performance of the current model incarnation using confusion matrice
 <details><summary markdown="span"><strong>[Current Predictions Explorer](current_explorer.html)</strong>
 </summary>
 
-Explore current predictions of the latest model. All statements that have yet to be labeled by the currently used fact-checking sources (only [Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database) at present) are available. 
+Explore current predictions of the latest model. The most recent (max 5000) statements that have yet to be labeled by the currently used fact-checking sources (only [Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database) at present) are available. 
 
 Live predictions are continuously added via [ipfs](https://ipfs.io). Twitter is polled for new statements every 3 minutes, [Factba.se](https://factba.se/) every 15 minutes.
 
