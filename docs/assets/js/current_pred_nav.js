@@ -82,7 +82,11 @@ async function loadJSON(latest_recs) {
 }
 
 function dec_fmt( data, type, row ) {
-    return data.toFixed(2);
+    if ( (data > 0 && data < 0.01) || (data > 0.99 && data < 1)){
+        return data.toFixed(3);
+    } else {
+        return data.toFixed(2);
+        }
 }
 
 async function add_table_func() {
@@ -115,16 +119,16 @@ async function add_table_func() {
           }
         },
         { data: 'bucket_acc',
-            render: $.fn.dataTable.render.number(...num_fmt),
+            render: dec_fmt,
             type: 'num'},
-        { data: 'ppv', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'npv', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'ppr', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'npr', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'tp_ratio', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'tn_ratio', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'fp_ratio', render: $.fn.dataTable.render.number(...num_fmt)},
-        { data: 'fn_ratio', render: $.fn.dataTable.render.number(...num_fmt)},
+        { data: 'ppv', render: dec_fmt},
+        { data: 'npv', render: dec_fmt},
+        { data: 'ppr', render: dec_fmt},
+        { data: 'npr', render: dec_fmt},
+        { data: 'tp_ratio', render: dec_fmt},
+        { data: 'tn_ratio', render: dec_fmt},
+        { data: 'fp_ratio', render: dec_fmt},
+        { data: 'fn_ratio', render: dec_fmt},
         { data: 't_date',
           render: function ( data, type, row ) {
             if ( type === 'display' || type === 'filter' ) {

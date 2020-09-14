@@ -109,7 +109,7 @@ class DCInfSvc(object):
         return api
 
     def apply_pin_limit(self, cid_list: List) -> List:
-        return cid_list[-self.config.experiment.infsvc.pinata_pin_limit:] if len(cid_list) > 5000 else cid_list
+        return cid_list[-self.config.experiment.infsvc.pinata_stmt_limit:] if len(cid_list) > self.config.experiment.infsvc.pinata_stmt_limit else cid_list
 
     def publish_inference(self, inf_probs: List, inf_metadata: Dict) -> None:
         perf_keys = ['model_version', 'bucket_acc', 'global_acc', 'global_auc', 'global_mcc', 'ppv', 'npv', 'ppr',
@@ -135,6 +135,7 @@ class DCInfSvc(object):
         tweet_inf_outputs, stmt_inf_outputs = [], []
         for prob, pid, cid, ctype, t_url, t_date, claim_text in zip(inf_probs, *list(inf_metadata.values())):
             tmp_d = defaultdict()
+            is_stmt = True if ctype == 0 else False
             if ctype == 1:
                 output_l = tweet_inf_outputs
                 tmp_d['thread_id'] = pid
@@ -146,7 +147,7 @@ class DCInfSvc(object):
             raw_confidence = round(prob, 4) if prob >= 0.5 else round(1-prob, 4)
             tmp_d['raw_pred'] = prob
             tmp_d['raw_confidence'] = raw_confidence
-            accuracy_tup = calc_accuracy_data(self.model_perf_tups, raw_confidence, ctype)
+            accuracy_tup = calc_accuracy_data(self.model_perf_tups, raw_confidence, is_stmt)
             for t, k in zip(accuracy_tup, perf_keys):
                 t = float(t) if isinstance(t, Decimal) else t
                 tmp_d[k] = t
