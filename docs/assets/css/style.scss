@@ -130,6 +130,45 @@ table#curr_preds a {
     text-decoration: none;
 }
 
+
+table#curr_preds thead, table#curr_preds thead tr {
+    visibility: hidden;
+    line-height: 0;
+}
+
+.filter_note {
+    text-align: left;
+}
+
+.cur-preds-filter-grid-container {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-gap: 0.1rem;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    align-items: center;
+    margin-left: 0rem;
+    padding-left: 0rem;
+    text-align: center;
+    max-width: 20rem;
+    color:#003566;
+}
+
+.local-acc-min  {grid-area: 1 / 2 / span 1 / span 1;}
+.local-acc-max  {grid-area: 1 / 3 / span 1 / span 1; }
+.local-acc-name {grid-area: 2 / 1 / span 1 / span 1; text-align:right; }
+.local-acc-input-min {grid-area: 2 / 2 / span 1 / span 1; }
+.local-acc-input-max {grid-area: 2 / 3 / span 1 / span 1; }
+.ppv-name {grid-area: 3 / 1 / span 1 / span 1; text-align:right; }
+.ppv-input-min {grid-area: 3 / 2 / span 1 / span 1; }
+.ppv-input-max {grid-area: 3 / 3 / span 1 / span 1; }
+.predictions-name {grid-area: 4 / 1 / span 1 / span 1; text-align:right; }
+.predictions-inputs {grid-area: 4 / 2 / span 1 / span 2; text-align:left; margin-top:0.5rem; font-size:0.8rem; min-width:16rem; }
+.predictions-inputs label {padding-left:0.5rem;}
+fieldset {
+    border: none;
+}
+
 div.claim {
     max-height: 100px;
     overflow:hidden;
@@ -137,13 +176,46 @@ div.claim {
     text-align: left;
 }
 
-table#curr_preds .falsehood {
+.loading {
+  font-size: 1.0rem;
+}
+
+.loading:after {
+  overflow: hidden;
+  display: inline-block;
+  vertical-align: bottom;
+  -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+  animation: ellipsis steps(4,end) 900ms infinite;
+  content: "\2026";
+  width: 0px;
+}
+
+@keyframes ellipsis {
+  to {
+    width: 1.25rem;
+  }
+}
+
+@-webkit-keyframes ellipsis {
+  to {
+    width: 1.25rem;
+  }
+}
+
+.falsehood {
     color: darkred;
+}
+
+.nofalsehood {
+    color: darkgreen;
+}
+
+
+table#curr_preds .falsehood {
     padding: 0rem;
 }
 
 table#curr_preds .nofalsehood {
-    color: darkgreen;
     padding: 0rem;
 }
 
@@ -153,6 +225,13 @@ table#curr_preds tr, table#curr_preds td {
     border-width:1px;
     text-align:center;
 }
+
+.cust_filter {
+    font-family: 'Humor Sans';
+    max-width: 5.5rem;
+    color:#003566;
+}
+
 
 .dataTables_length, .dataTables_info, .dt_instructions, .loading_msg {
     color: #003566;
@@ -174,7 +253,9 @@ table#curr_preds tr, table#curr_preds td {
 #curr_preds_filter.dataTables_filter {
     padding-bottom: 0.5rem;
 }
-table.curr_preds th {
+
+table.curr_preds th, table#filter_tab td {
+//table.curr_preds th, table#filter_tab td {
     background-color: #003566;
     color: #ffffff;
     border: outset;
@@ -531,9 +612,10 @@ a:hover, a:active {
     font-size: 0.8rem;
 }
 
-.outer_container .curr_preds, #curr_preds_wrapper {
+.outer_container .curr_preds, #curr_preds_wrapper, .cur-preds-filter-grid-container {
     font-family: 'Humor Sans';
 }
+
 
 .ldBar-label {
     color: green;
@@ -671,8 +753,6 @@ ul.fnum {
     font-weight:bold;
 }
 
-
-
 summary::-webkit-details-marker {
   display: none
 }
@@ -718,6 +798,19 @@ details[open] summary:after {
     .local-metric-grid-container {
         font-size: 1.5rem;
     }
+    .cur-preds-filter-grid-container {
+        font-size: 1.0rem;
+        padding: 0.6rem;
+        grid-gap: 0.3rem;
+        align-items: center;
+        white-space: nowrap;
+        margin-left: 0rem;
+        padding-left: 0rem;
+        text-align: center;
+        max-width: 20rem;
+    }
+    .predictions-inputs {grid-area: 4 / 2 / span 1 / span 2; margin-left:1.0rem; text-align:left; margin-top:0.2rem; font-size:1.0rem; padding-top:0.5rem; min-width: 16rem; }
+    .predictions-name {padding:0rem;}
     .metric_title {
         font-size:1.5rem;
         margin-left: 1.5rem;

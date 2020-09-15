@@ -6,30 +6,75 @@ permalink: /current_explorer
 ---
 <div class="outer_container">
     <div class="dt_instructions">Latest Deep Classiflie Predictions<sup id="a0" class="small"><a href="#f0">[0]</a></sup></div>
-    <div class="loading_msg">Loading latest predictions from IPFS...<sup id="a2" class="small"><a href="#f0">[2]</a></sup></div>
-
+    <div class="loading_msg">Loading latest predictions from IPFS<span id="connect_step"></span><span class="loading"></span><sup id="a2" class="small"><a href="#f0">[2]</a></sup></div>
     <div id="progress_bar" class="label-center"> </div>
+    <div class="cur-preds-filter-grid-container">
+        <div class="local-acc-name">Local Accuracy:</div>
+        <div class="local-acc-min">Min</div>
+        <div class="local-acc-max">Max</div>
+        <div class="local-acc-input-min"><input type="text" id="min_local_acc" name="min_local_acc" class="cust_filter"></div>
+        <div class="local-acc-input-max"><input type="text" id="max_local_acc" name="max_local_acc" class="cust_filter"></div>
+        <div class="ppv-name">PPV:</div>
+        <div class="ppv-input-min"><input type="text" id="min_ppv" name="min_ppv" class="cust_filter"></div>
+        <div class="ppv-input-max"><input type="text" id="max_ppv" name="max_ppv" class="cust_filter"></div>
+        <div class="predictions-name">Predictions: </div>
+        <div class="predictions-inputs">
+            <fieldset>
+                <input type="checkbox" id="cbox_falsehoods" name="pred_type" value="1" class="dc_cbox" checked><label class="falsehood" for="falsehoods">Falsehoods</label><br/>
+                <input type="checkbox" id="cbox_no_falsehoods" name="pred_type" value="0" class="dc_cbox" checked><label class="nofalsehood"  for="no_falsehoods">No Falsehoods</label>
+            </fieldset>
+        </div>
+    </div>
     <table id="curr_preds" class="curr_preds">
-            <thead>
-                <tr>
-                    <th><div class="claim">Claim</div></th>
-                    <th>Prediction</th>
-                    <th> Local Acc.</th>
-                    <!--<th> Projected Acc</th>-->
-                    <th>PPV</th>
-                    <th>NPV</th>
-                    <th>PPR</th>
-                    <th>NPR</th>
-                    <th>TP</th>
-                    <th>TN</th>
-                    <th>FP</th>
-                    <th>FN</th>
-                    <th>Claim Date<sup id="a1"><a href="#f1">[1]</a></sup></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <thead>
+        <!--
+            <tr>
+            <th><div class="claim"></div></th>
+            <th class="filter_note">Min:</th>
+            <th><input type="text" id="min_local_acc" name="min_local_acc" class="cust_filter"></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            </tr>
+            <tr>
+                <th><div class="claim"></div></th>
+                <th class="filter_note">Max:</th>
+                <th><input type="text" id="max_local_acc" name="max_local_acc" class="cust_filter"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            -->
+            <tr>
+                <th><div class="claim">Claim</div></th>
+                <th>Prediction</th>
+                <th>Local Acc.</th>
+                <!--<th> Projected Acc</th>-->
+                <th>PPV</th>
+                <th>NPV</th>
+                <th>PPR</th>
+                <th>NPR</th>
+                <th>TP</th>
+                <th>TN</th>
+                <th>FP</th>
+                <th>FN</th>
+                <th>Claim Date<sup id="a1"><a href="#f1">[1]</a></sup></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 </div>
 <div class="footnotes">
     <ol>

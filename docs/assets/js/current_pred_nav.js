@@ -55,8 +55,15 @@ async function readStreamResponse(response) {
 
 async function loadJSON(latest_recs) {
     let response = {};
+    var sBrowser, sUsrAg = navigator.userAgent;
+    if (sUsrAg.indexOf("Firefox") > -1) {
+        await $("#progress_bar").toggle(); // disable progress bar for firefox the moment, behavior differs from chrome but this should be handled without user-agent detection in the future
+    }
     try {
+        console.log("Waiting for initial pinata gateway response");
+        $("#connect_step").text(". Waiting for initial pinata gateway response");
         response = await fetch(latest_recs[0]);
+        await $("#connect_step").toggle();
     }
     catch(err) {
         console.log("Failed loading from primary gateway "+latest_recs[0]+" attempting to fetch from backup "+latest_recs[1]);
@@ -92,8 +99,7 @@ function dec_fmt( data, type, row ) {
 async function add_table_func() {
     let curr_json = {};
     var num_fmt = ['', '.', 2, ''];
-    const latest_recs = ["https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org",
-    "https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
+    const latest_recs = ["https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org", "https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
     //await $("#progress_bar").toggle(); // leave progress bar enabled, using pinata gateway as primary for now
     curr_json = await loadJSON(latest_recs);
     var datatab = $('#curr_preds').DataTable( {
@@ -143,17 +149,73 @@ async function add_table_func() {
         scrollY: 400,
         scrollX: 300
         } );
+    datatab = await add_search(datatab);
     return datatab;
+}
+
+async function add_search(datatable){
+    $('#min_local_acc, #max_local_acc, #min_ppv, #max_ppv').keyup( function() {
+        datatable.draw();
+    } );
+    $('.dc_cbox').change(function() {
+        datatable.draw();
+    } );
+   return datatable;
+   }
+
+function prob_filter(min, max, target){
+    if ( ( isNaN( min ) && isNaN( max ) ) ||
+         ( isNaN( min ) && target <= max ) ||
+         ( min > 1 && target <= max ) ||
+         ( min <= target  && isNaN( max ) ) ||
+         ( min <= target && target <= max ) )
+    {
+        return true;
+    }
+    return false;
+}
+
+function add_filters(){
+    $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+            var min_local = parseFloat( $('#min_local_acc').val() ) || 0;
+            var max_local = parseFloat( $('#max_local_acc').val() ) || 1;
+            var target_local = parseFloat( data[2] );
+            return prob_filter(min_local, max_local, target_local);
+        }
+     );
+     $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+            var min_ppv = parseFloat( $('#min_ppv').val() ) || 0;
+            var max_ppv = parseFloat( $('#max_ppv').val() ) || 1;
+            var target_ppv = parseFloat( data[3] );
+            return prob_filter(min_ppv, max_ppv, target_ppv);
+        }
+     );
+     $.fn.dataTable.ext.search.push(
+        function( settings, data, dataIndex ) {
+            var falsehood_checked = $('#cbox_falsehoods').is(":checked");
+            var no_falsehood_checked = $('#cbox_no_falsehoods').is(":checked");
+            var target_check = data[1];
+            if ( ( no_falsehood_checked && target_check=="No Falsehood Label" ) ||
+                 ( falsehood_checked && target_check=="Falsehood Label" ))
+            {
+                return true;
+            }
+            return false;
+        }
+     );
 }
 
 async function load_latest(){
     await $(".dt_instructions").toggle();
     var datatab = await add_table_func();
+    var cust_filters = [];
+    await add_filters();
     await $(".loading_msg").toggle();
     await $("#progress_bar").hide();
     await $(".dt_instructions").toggle();
     window.dispatchEvent(new Event('resize'));
-
 }
 
 $(document).ready( load_latest );
