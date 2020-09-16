@@ -6,7 +6,7 @@ permalink: /current_explorer
 ---
 <div class="outer_container">
     <div class="dt_instructions">Latest Deep Classiflie Predictions<sup id="a0" class="small"><a href="#f0">[0]</a></sup></div>
-    <div class="loading_msg">Loading latest predictions from IPFS<span id="connect_step"></span><span class="loading"></span><sup id="a2" class="small"><a href="#f0">[2]</a></sup></div>
+    <div class="loading_msg">Loading latest predictions from IPFS.<span id="connect_step"></span><span class="loading"></span><sup id="a2" class="small"><a href="#f0">[2]</a></sup></div>
     <div id="progress_bar" class="label-center"> </div>
     <div class="cur-preds-filter-grid-container">
         <div class="local-acc-name">Local Accuracy:</div>
@@ -24,6 +24,19 @@ permalink: /current_explorer
                 <input type="checkbox" id="cbox_no_falsehoods" name="pred_type" value="0" class="dc_cbox" checked><label class="nofalsehood"  for="no_falsehoods">No Falsehoods</label>
             </fieldset>
         </div>
+    </div>
+    <div class="metric_defs">
+        <details><summary>Metric Definitions
+        </summary>
+
+            <div class="metric_def_note">All local prediction metrics refer to performance of the model on the test set, bucketed by model confidence. Presented metrics for a given prediction are derived from the relevant model confidence bucket. Positive class = falsehood label. See relevant <a href="{{ site.about_url }}#current-performance">about page</a> section for additional context.</div>
+            <ul>
+                <li><span class="met-emph">Local Acc.:</span><span class="metric_def_note"> Test set accuracy on predictions with similar confidence</span></li>
+                <li><a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values">PPV/NPV</a>: <span class="metric_def_note">Positive/negative predictive value of predictions</span></li>
+                <li><span class="met-emph">PPR/NPR:</span><span class="metric_def_note"> Ratio of positive/negative predictions in a given bucket</span></li>
+                <li><a href="https://en.wikipedia.org/wiki/Confusion_matrix">TP/TN/FP/FN</a>: <span class="metric_def_note">Confusion matrix class proportions for a given bucket</span></li>
+            </ul>
+        </details>
     </div>
     <table id="curr_preds" class="curr_preds">
         <thead>

@@ -7,6 +7,12 @@
 	height: 90%;
 }
 
+.emph {
+    font-weight:bold;
+    font-size: 0.9rem;
+}
+
+
 img.dc_logo_head {
     height:109px;
     width:150px;
@@ -14,6 +20,7 @@ img.dc_logo_head {
     float:left;
     margin-right: 1.0rem;
 }
+
 
 .btn {
     box-shadow:inset 0px 1px 25px 0px #f7c5c0;
@@ -46,6 +53,11 @@ img.dc_logo_head {
     margin-left: 0.5rem;
 }
 
+.met-emph {
+    font-weight:bold;
+    font-size: 0.8rem;
+}
+
 blockquote ul li strong {
 	color: #003566;
 }
@@ -58,6 +70,30 @@ blockquote ul li strong {
 
 .main-content p, .main-content ul li, .main-content ol li {
     font-size: 0.8rem;
+}
+
+.metric_defs {
+  display:block;
+  float:left;
+  font-size: 0.8rem;
+  color: #003566;
+  padding-bottom:0.5rem;
+}
+
+.metric_defs ul li {
+    text-align: left;
+}
+
+.metric_defs details summary::after, .metric_defs details[open] summary::after {
+    background-size: 15px 15px;
+    padding-top: 0px;
+ }
+
+.metric_def_note {
+  white-space: initial;
+  font-size: 0.8em;
+  max-width: 20rem;
+  text-align:justify;
 }
 
 .main-content h3 {
@@ -150,7 +186,6 @@ table#curr_preds thead, table#curr_preds thead tr {
     margin-left: 0rem;
     padding-left: 0rem;
     text-align: center;
-    max-width: 20rem;
     color:#003566;
 }
 
@@ -188,6 +223,11 @@ div.claim {
   animation: ellipsis steps(4,end) 900ms infinite;
   content: "\2026";
   width: 0px;
+}
+
+#connect_step {
+font-weight: normal;
+font-size: 0.8em;
 }
 
 @keyframes ellipsis {
@@ -753,11 +793,19 @@ ul.fnum {
     font-weight:bold;
 }
 
+summary{
+  outline:none;
+}
+
+.metric_defs summary{
+  font-family: 'Humor Sans';
+}
+
 summary::-webkit-details-marker {
   display: none
 }
 
-summary:after {
+summary::after {
   background: url("../expand_plus.png") center no-repeat;
   background-size: 20px 20px;
   color: transparent;
@@ -775,7 +823,7 @@ details[open] summary:after {
   color: transparent;
 }
 
-@media all and (min-width: 30em) {
+@media all and (min-width: 30rem) {
     img.dc_logo_head {
         height: 142px;
         width: 195px;
@@ -807,7 +855,7 @@ details[open] summary:after {
         margin-left: 0rem;
         padding-left: 0rem;
         text-align: center;
-        max-width: 20rem;
+        max-width:25rem;
     }
     .predictions-inputs {grid-area: 4 / 2 / span 1 / span 2; margin-left:1.0rem; text-align:left; margin-top:0.2rem; font-size:1.0rem; padding-top:0.5rem; min-width: 16rem; }
     .predictions-name {padding:0rem;}
@@ -914,6 +962,27 @@ details[open] summary:after {
     .main-content h4, .main-content p, .main-content ul li, .main-content ol li {
         font-size: 1.1rem;
     }
+    .met-emph {
+        font-weight:bold;
+        font-size: 1.0rem;
+    }
+    .metric_defs {
+        font-size: 1.0rem;
+    }
+    .metric_defs ul li {
+        font-size: 1.0rem;
+    }
+    .metric_defs details summary::after {
+        background-size: 15px 15px;
+        padding-top: 0px;
+        margin-top: 0px;
+        font-size: 1.0rem;
+    }
+    .metric_def_note {
+        white-space: initial;
+        font-size: 1.0em;
+        max-width: 50rem;
+    }
     .about-table table {
         font-size: 1.0rem;
     }
@@ -949,6 +1018,16 @@ details[open] summary:after {
     }
     .paginate_button {
     font-size: 1.0rem;
+    }
+}
+
+@media all and (min-width: 81rem) {
+    .metric_defs {
+        margin-top:-2rem;
+    }
+    .cur-preds-filter-grid-container {
+        float:left;
+        max-width:30rem;
     }
 }
 
@@ -1107,10 +1186,6 @@ table.local_metric_summary th, table.local_metric_summary td {
 }
 .stat_ttl {
     font-size: 0.66rem;
-}
-.emph {
-    font-weight:bold;
-    font-size: 0.90rem;
 }
 .mid {
     font-size:16px;

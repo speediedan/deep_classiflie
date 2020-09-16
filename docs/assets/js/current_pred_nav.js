@@ -60,8 +60,8 @@ async function loadJSON(latest_recs) {
         await $("#progress_bar").toggle(); // disable progress bar for firefox the moment, behavior differs from chrome but this should be handled without user-agent detection in the future
     }
     try {
-        console.log("Waiting for initial pinata gateway response");
-        $("#connect_step").text(". Waiting for initial pinata gateway response");
+        console.log("Waiting for initial gateway response.");
+        $("#connect_step").html("<br/>Waiting for primary gateway response");
         response = await fetch(latest_recs[0]);
         await $("#connect_step").toggle();
     }
