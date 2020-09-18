@@ -43,7 +43,7 @@ def init_radio_groups() -> Tuple[RadioButtonGroup, ...]:
 
 def init_explorer_divs(pred_stmt_dict: Dict) -> Tuple[Div, ...]:
     default_idx = min([i for i, (b, c) in enumerate(zip(pred_stmt_dict['bucket_type'], pred_stmt_dict['tp']))
-                       if b == 'max_acc_nontweets' and c == 1])
+                       if b == 'max_ppv_nontweets' and c == 1])
     word_import_div = Div(text=pred_stmt_dict['pred_exp_attr_tups'][default_idx][1], height_policy='max',
                           width_policy='max', width=300, min_height=20, align='start', margin=(5, 5, 5, 5),
                           css_classes=['box', 'word_import'])

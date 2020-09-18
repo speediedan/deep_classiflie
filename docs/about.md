@@ -45,8 +45,8 @@ the [current prediction explorer](current_explorer.html):
     * Global metrics (performance on the entire test set): <br/>
         <img src="/assets/global_metrics_summ.png" alt="Global Stat Summary" />
     * Local metrics (performance in a local region of confidence):<br/>
-        <img src="/assets/max_acc_nontweets.png" alt="Max Accuracy Non-Tweets" /> <br/>
-        <img src="/assets/max_acc_tweets.png" alt="Max Accuracy Tweets" />
+        <img src="/assets/max_ppv_nontweets.png" alt="Max PPV Non-Tweets" /> <br/>
+        <img src="/assets/max_ppv_tweets.png" alt="Max PPV Tweets" />
 
 - Future research using this framework is intended to explore the extent to which these claim-classification models generalize across individuals and fact-checking entities. Approaches to sharing and integrating these models into a mutually-enhancing network are also to be investigated.
 
@@ -151,8 +151,8 @@ To minimize false positives and maximize the model's utility, the following appr
     * Bucket-level accuracy
 3. Report estimated local accuracy metrics of given prediction by associating it with its corresponding confidence bucket. See [caveats](#caveats) regarding recognized performance biases<sup id="aa">[a](#ca)</sup>
     * In the prediction explorer, randomly sample 100 statements (including all confusion matrix classes) from each of four confidence buckets: the maximum and minimum accuracy buckets for each statement type.  
-        <img src="/assets/max_acc_nontweets.png" alt="Max Accuracy Non-Tweets" /> <br/>
-        <img src="/assets/max_acc_tweets.png" alt="Max Accuracy Tweets" />
+        <img src="/assets/max_ppv_nontweets.png" alt="Max PPV Non-Tweets" /> <br/>
+        <img src="/assets/max_ppv_tweets.png" alt="Max PPV Tweets" />
 </details>
 
 ---

@@ -116,15 +116,15 @@ var cc_val = cc_grp.labels[cc_active_index];
 var curr_bucket = '';
 if (tnt_val== 'nontweets') {
     if (b_val == 'max') {
-        curr_bucket = 'max_acc_nontweets';
+        curr_bucket = 'max_ppv_nontweets';
     } else {
-        curr_bucket = 'min_acc_nontweets';
+        curr_bucket = 'min_ppv_nontweets';
     }
 } else {
     if (b_val == 'max') {
-        curr_bucket = 'max_acc_tweets';
+        curr_bucket = 'max_ppv_tweets';
     } else {
-        curr_bucket = 'min_acc_tweets';
+        curr_bucket = 'min_ppv_tweets';
     }
 }
 for (var i = 0; i <= stmttable_cds.data['bucket_type'].length; i++) {
