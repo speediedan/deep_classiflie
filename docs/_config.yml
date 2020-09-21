@@ -9,7 +9,7 @@ kramdown:
 theme: jekyll-theme-cayman
 google_analytics: UA-26562413-2
 show_downloads: false
-about_url: about.html
+about_url: index.html
 pred_explorer_url: pred_explorer.html
 perf_explorer_url: perf_explorer.html
 current_explorer_url: current_explorer.html

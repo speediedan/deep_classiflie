@@ -1,3 +1,4 @@
+#!/bin/bash
 source ${HOME}/.bashrc
 cd `dirname "$(readlink -f "$0")"`
 curr_branch=`git branch | grep '* ' | awk '{print $2}'`
@@ -23,4 +24,10 @@ then
     d=`date +%Y%m%d%H%M%S`
     mv $prev_log ${prev_log}_${d}.bkp
 fi
-nohup /opt/anaconda/envs/${target_env}/bin/python ${DC_BASE}/deep_classiflie.py --config "${DC_BASE}/configs/infsvc.yaml" 1>"${HOME}/${bot_log_name}.out" 2>&1 &
+svc_mode=$2
+if [ $svc_mode == "svc" ]
+then
+  /opt/anaconda/envs/${target_env}/bin/python ${DC_BASE}/deep_classiflie.py --config "${DC_BASE}/configs/infsvc.yaml" 1>"${HOME}/${bot_log_name}.out" 2>&1
+else
+  nohup /opt/anaconda/envs/${target_env}/bin/python ${DC_BASE}/deep_classiflie.py --config "${DC_BASE}/configs/infsvc.yaml" 1>"${HOME}/${bot_log_name}.out" 2>&1 &
+fi

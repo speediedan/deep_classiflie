@@ -216,7 +216,7 @@ class DatasetCollection(object):
 
     def filter_truths(self) -> None:
         """
-        see diagrams at https://deepclassiflie.org/about.html#data-pipeline
+        see diagrams at https://deepclassiflie.org/index.html#data-pipeline
         """
         base_model_modes = [True, False]
         if not self.config.experiment.inference_ckpt:
