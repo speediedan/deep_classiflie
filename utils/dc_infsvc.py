@@ -41,6 +41,7 @@ class DCInfSvc(object):
                                                      f'{constants.GLOBAL_MODEL_PERF_CACHE_NAME}')}
         self.pinned_preds_cache = Path(os.path.join(self.config.experiment.dirs.model_cache_dir,
                                                     constants.LOCAL_INFSVC_PUB_CACHE_NAME))
+        self.latest_pinned_cid = None
         self.infsvc_dbconf = (self.config.experiment.infsvc, self.config.experiment.dirs.instance_log_dir)
         self.batch_inference() if self.config.experiment.infsvc.batch_mode else self.poll_and_analyze()
 
@@ -130,6 +131,7 @@ class DCInfSvc(object):
                 save_json(new_preds, self.pinned_preds_cache)
         if pin_flow_success:
             self.log_published_preds(stmt_inf_outputs, tweet_inf_outputs)
+            self.time_latest_fetch()
 
     def build_inf_outputs(self, inf_probs, inf_metadata, perf_keys) -> Tuple[List, List]:
         tweet_inf_outputs, stmt_inf_outputs = [], []
@@ -223,6 +225,17 @@ class DCInfSvc(object):
                                             self.config.experiment.infsvc.sql.save_pinned_cid_sql, pinned_tup)
         return pinned_tup, pin_cnt, pin_error
 
+    def time_latest_fetch(self) -> None:
+        time.sleep(10)
+        r_start = time.clock()
+        try:
+            _ = requests.get(f'{constants.PINATA_GATEWAY_GET_ENDPOINT}/{self.latest_pinned_cid}')
+            r_duration = time.clock() - r_start
+            logger.info(f'Time to retrieve latest cid ({self.latest_pinned_cid}): {round(r_duration, 2)} seconds.')
+        except requests.exceptions.RequestException as e:
+            logger.warning(f'Encountered the following error fetching latest cid: {e}')
+
+
     @staticmethod
     def unpin_cid(target_cid: str, headers: Dict) -> bool:
         r = requests.delete(f'{constants.PINATA_UNPINJSON_ENDPOINT}/{target_cid}', headers=headers)
@@ -244,6 +257,7 @@ class DCInfSvc(object):
         if pin_cnt == 1 and pin_error == 0:
             logger.info(f'Pinned latest unlabeled model predictions {pinned_tup[1]} with size {pinned_tup[2]}')
             self.patch_dns(pinned_tup[1])
+            self.latest_pinned_cid = pinned_tup[1]
             if rm_previous and (current_cid[0] != pinned_tup[1]):
                 return DCInfSvc.unpin_cid(current_cid[0], headers)
             return True

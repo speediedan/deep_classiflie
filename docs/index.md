@@ -75,7 +75,7 @@ Explore the performance of the current model incarnation using confusion matrice
 <details><summary markdown="span"><strong>[Current Predictions Explorer](current_explorer.html)</strong>
 </summary>
 
-Explore current predictions of the latest model. The most recent (max 5000) statements that have yet to be labeled by the currently used fact-checking sources (only [Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database) at present) are available. 
+Explore current predictions of the latest model. The most recent (max 5000) statements that have yet to be labeled by the currently used fact-checking sources (only [Washington Post Factchecker](https://www.washingtonpost.com/graphics/politics/trump-claims-database/) at present) are available. 
 
 Live predictions are continuously added via [ipfs](https://ipfs.io). Twitter is polled for new statements every 3 minutes, [Factba.se](https://factba.se/) every 15 minutes.
 
@@ -440,15 +440,15 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 ### Citing Deep Classiflie
 Please cite:
 ```tex
-@misc{Dan_Dale_2020_4025492,
+@misc{Dan_Dale_2020_4046591,
     author       = {Dan Dale},
     title        = {% raw %}{{Deep Classiflie: Shallow fact-checking with deep neural networks}}{% endraw %},
     month        = sep,
     year         = 2020,
-    doi          = {10.5281/zenodo.4025492},
-    version      = {v0.1.1-alpha},
+    doi          = {10.5281/zenodo.4046591},
+    version      = {v0.1.3-alpha},
     publisher    = {Zenodo},
-    url          = {https://zenodo.org/record/4025492}
+    url          = {https://zenodo.org/record/4046591}
     }
 ```
 Feel free to star the [repo]({{  site.github.repository_url  }}) as well if you find it useful or interesting. Thanks!
