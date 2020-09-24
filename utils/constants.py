@@ -27,6 +27,7 @@ DEFAULT_CONFIG_SQL_NAME = "config_defaults_sql.yaml"
 LOCAL_INFSVC_PUB_CACHE_NAME = "dc_infsvc_pub_cache.json"
 PINATA_PINJSON_ENDPOINT = "https://api.pinata.cloud/pinning/pinJSONToIPFS"
 PINATA_UNPINJSON_ENDPOINT = "https://api.pinata.cloud/pinning/unpin"
+PINATA_GATEWAY_GET_ENDPOINT = "https://gateway.pinata.cloud/ipfs"
 CLOUDFLARE_DC_DNS_ENDPOINT = "https://api.cloudflare.com/client/v4/zones"
 # default db project location is to be a sibling dir of this project
 DEF_DB_PRJ_LOCATION = os.path.abspath(f'{curr_parent}/../../')
