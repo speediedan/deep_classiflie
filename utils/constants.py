@@ -12,9 +12,11 @@ DEV_MODE = True if curr_base != DEF_PRJ_NAME else False
 if DEV_MODE:
     LOCK_FILE = f"{os.environ['HOME']}/{curr_base}_dcbot.lock"
     DC_PREDICTIONS_SUBDOMAIN = "predictions-dev"
+    DC_PROMETHEUS_PORT = 8001
 else:
     LOCK_FILE = f"{os.environ['HOME']}/dcbot.lock"
     DC_PREDICTIONS_SUBDOMAIN = "predictions"
+    DC_PROMETHEUS_PORT = 8000
 LOCK_FILE = f"{os.environ['HOME']}/{curr_base}_dcbot.lock" if DEV_MODE else f"{os.environ['HOME']}/dcbot.lock"
 APP_NAME = curr_base
 CPU_COUNT = os.cpu_count()

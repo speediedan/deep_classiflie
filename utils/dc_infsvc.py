@@ -12,6 +12,8 @@ from pathlib import Path
 import tweepy
 from tweepy import TweepError
 import requests
+from prometheus_client import start_http_server, Summary, Counter
+import time
 
 import utils.constants as constants
 from db_ingest import refresh_db, get_cnxp_handle
@@ -21,6 +23,9 @@ from analysis.inference import Inference
 from analysis.interpretation_utils import load_cache, calc_accuracy_data
 
 logger = logging.getLogger(constants.APP_NAME)
+pub_flow_summary = Summary('deepclassiflie_publishflow', 'Time spent running publish flow')
+tweets_published = Counter('deepclassiflie_published_tweets', 'tweets published')
+stmts_published = Counter('deepclassiflie_published_stmts', 'stmts published')
 
 
 class DCInfSvc(object):
@@ -43,6 +48,8 @@ class DCInfSvc(object):
                                                     constants.LOCAL_INFSVC_PUB_CACHE_NAME))
         self.latest_pinned_cid = None
         self.infsvc_dbconf = (self.config.experiment.infsvc, self.config.experiment.dirs.instance_log_dir)
+        # start http server for prometheus instrumentation
+        start_http_server(constants.DC_PROMETHEUS_PORT)
         self.batch_inference() if self.config.experiment.infsvc.batch_mode else self.poll_and_analyze()
 
     def fetch_auth_creds(self):
@@ -79,6 +86,7 @@ class DCInfSvc(object):
         last_nt_update_cnt = 0
         return update_nt, last_nt_update_cnt
 
+    @pub_flow_summary.time()
     def publish_flow(self) -> None:
         # N.B. publishing all statements and tweets that meet length thresholds, driven by separate statements/tweets
         # tables since metadata is substantially different and not straightforward to cleanly combine
@@ -178,6 +186,8 @@ class DCInfSvc(object):
         published_tweet_cnt, pub_tweet_errors = batch_execute_many(self.cnxp.get_connection(),
                                                                    self.config.experiment.infsvc.sql.tweets_pub_sql,
                                                                    tweet_tups)
+        tweets_published.inc(published_tweet_cnt)
+        stmts_published.inc(published_stmt_cnt)
         logger.info(f"published {published_stmt_cnt} statement and {published_tweet_cnt} tweet inference records")
 
     @staticmethod
