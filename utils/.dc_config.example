@@ -9,3 +9,4 @@ export DCDB_PASS="dcbotpasshere"
 export DCDB_USER="dcbot"
 export DCDB_HOST="hostgoeshere"
 export DCDB_NAME="deep_classiflie"
+export PYTHONFAULTHANDLER=1

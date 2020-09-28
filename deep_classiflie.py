@@ -21,6 +21,9 @@ from utils.envconfig import EnvConfig
 from analysis.inference import Inference
 from analysis.model_analysis_rpt import ModelAnalysisRpt
 from training.trainer import Trainer
+import faulthandler
+
+faulthandler.enable()
 
 
 logger = logging.getLogger(constants.APP_NAME)
