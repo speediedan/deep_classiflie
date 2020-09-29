@@ -13,7 +13,6 @@ import tweepy
 from tweepy import TweepError
 import requests
 from prometheus_client import start_http_server, Summary, Counter
-import time
 
 import utils.constants as constants
 from db_ingest import refresh_db, get_cnxp_handle
