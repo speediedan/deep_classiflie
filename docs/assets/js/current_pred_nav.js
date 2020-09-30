@@ -102,6 +102,7 @@ async function add_table_func() {
     const latest_recs = ["https://gateway.pinata.cloud/ipns/predictions.deepclassiflie.org", "https://cloudflare-ipfs.com/ipns/predictions.deepclassiflie.org", "/assets/dc_infsvc_pub_cache.json"];
     //await $("#progress_bar").toggle(); // leave progress bar enabled, using pinata gateway as primary for now
     curr_json = await loadJSON(latest_recs);
+    var date_patt = /^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])$/;
     var datatab = $('#curr_preds').DataTable( {
         data: curr_json,
         columns: [
@@ -138,7 +139,14 @@ async function add_table_func() {
         { data: 't_date',
           render: function ( data, type, row ) {
             if ( type === 'display' || type === 'filter' ) {
-                var d = new Date( data );
+                var d;
+                if (date_patt.test(data))  {
+                  d = new Date( data );
+                  d.setHours( d.getHours() + 8 ); // GMT shift date for factba.se dates that don't have a timestamp
+                } else {
+                  d = new Date( data);
+                  d.setHours( d.getHours() - 8 ); // GMT shift date for twitter timestamps
+                }
                 return (d.getMonth()+1) + '/' + (d.getDate()) +'/'+ d.getFullYear();
             }
             return data;
