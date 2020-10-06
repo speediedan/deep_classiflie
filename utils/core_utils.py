@@ -22,7 +22,8 @@ def device_config(config: MutableMapping) -> torch.device:
             log_device_info()
         # N.B. Another option here would be to mask the default cuda device using the CUDA_VISIBLE_DEVICES env
         if torch.cuda.device_count() > 1:
-            device = torch.device("cuda:1") if config.experiment.tweetbot.enabled and not constants.DEV_MODE \
+            device = torch.device("cuda:1") if (config.experiment.tweetbot.enabled or
+                                                config.experiment.infsvc.enabled) and not constants.DEV_MODE \
                 else torch.device("cuda:0")
         else:
             device = torch.device("cuda:0")
