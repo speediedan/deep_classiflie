@@ -1,0 +1,12 @@
+experiment:
+  db_functionality_enabled: False # must set to True to generate reports, run dctweetbot, among other functions
+  inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt" # note build_swa_from_ckpts will be ignored if inference_ckpt is present
+  debug:
+    debug_enabled: False
+  dirs:
+    experiments_base_dir: "/experiments" # defaults to {base_dir}/experiments
+    tmp_data_dir: "/home/deep_classiflie/datasets/dc_dataset_collection" # defaults to {raw_data_dir}/temp/{constants.APP_NAME}
+data_source:
+  # db_conf must be explictly specified only in dev mode or if db_conf is in a non-default location
+  # db_conf: "/home/speediedan/repos/edification/deep_classiflie_db/deep_classiflie_db.yaml"
+  skip_db_refresh: False

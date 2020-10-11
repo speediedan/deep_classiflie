@@ -15,11 +15,8 @@ from typing import MutableMapping, NoReturn, Optional
 import utils.constants as constants
 from dataprep.dataprep import DatasetCollection
 from utils.core_utils import create_lock_file
-from utils.dc_tweetbot import DCTweetBot
-from utils.dc_infsvc import DCInfSvc
 from utils.envconfig import EnvConfig
 from analysis.inference import Inference
-from analysis.model_analysis_rpt import ModelAnalysisRpt
 from training.trainer import Trainer
 import faulthandler
 
@@ -43,6 +40,7 @@ def main() -> Optional[NoReturn]:
         if not config.experiment.db_functionality_enabled:
             logger.error(f"{constants.DB_WARNING_START} Model analysis reports {constants.DB_WARNING_END}")
             sys.exit(0)
+        from analysis.model_analysis_rpt import ModelAnalysisRpt
         ModelAnalysisRpt(config)
     else:
         core_flow(config)
@@ -51,9 +49,11 @@ def main() -> Optional[NoReturn]:
 def init_dc_service(config:MutableMapping, service_type: str) -> NoReturn:
     if service_type == 'infsvc':
         svc_name = 'inference service'
+        from utils.dc_infsvc import DCInfSvc
         svc_module = DCInfSvc
     else:
         svc_name = 'tweetbot'
+        from utils.dc_tweetbot import DCTweetBot
         svc_module = DCTweetBot
     lock_file = None
     try:

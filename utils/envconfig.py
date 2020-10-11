@@ -88,7 +88,7 @@ class EnvConfig(object):
         self._config.experiment.dirs.model_cache_dir = self._config.experiment.dirs.model_cache_dir or \
                                                        cust_model_cache_dir
         self._config.experiment.dirs.dcbot_log_dir = self._config.experiment.dirs.dcbot_log_dir or \
-                                                     f"{self._config.experiment.dirs.experiments_base_dir}/dcbot"
+                                                         f"{self._config.experiment.dirs.experiments_base_dir}/dcbot"
         self._config.experiment.dirs.rpt_arc_dir = self._config.experiment.dirs.rpt_arc_dir or \
                                                    f"{self._config.experiment.dirs.base_dir}/repos/" \
                                                    f"{constants.APP_NAME}_history"

@@ -1,5 +1,6 @@
 experiment:
-  inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200816114940/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
+  inference_ckpt: "/home/speediedan/experiments/deep_classiflie/checkpoints/20200911144157/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
+  #inference_ckpt: "/home/speediedan/experiments/deep_classiflie_feat/checkpoints/20200901084410/checkpoint-0.0000-swa_best_2_ckpts--1-0.pt"
   predict_only: True
   debug:
     debug_enabled: False

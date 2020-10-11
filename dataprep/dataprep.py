@@ -113,6 +113,7 @@ class DatasetCollection(object):
                 f"{constants.DB_WARNING_START} Since the specified cached dataset ({self.file_suffix[1:]}) "
                 f"has not been found or cannot be rebuilt, instance aborting. "
                 f"Please see repo readme for further details.")
+            logger.error(f"Current config: {self.config}")
             sys.exit(0)
         self.db_to_pkl()
         ds_dict = {"train_recs": self.dataset_conf['num_train_recs'], "val_recs": self.dataset_conf['num_val_recs'],

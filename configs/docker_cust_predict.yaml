@@ -1,0 +1,13 @@
+experiment:
+  inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
+  predict_only: True
+  debug:
+    debug_enabled: False
+  dirs:
+    experiments_base_dir: "/experiments" # defaults to {base_dir}/experiments
+    tmp_data_dir: "/home/deep_classiflie/datasets/dc_dataset_collection" # defaults to {raw_data_dir}/temp/{constants.APP_NAME}
+data_source:
+  skip_db_refresh: True
+inference:
+  interpret_preds: True
+  purge_intermediate_rpt_files: True # default is True, left here for debugging convenience
