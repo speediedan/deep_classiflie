@@ -446,15 +446,16 @@ As of writing (2020.10.11), Docker Compose does not fully support GPU provisioni
       ```
 3. Use a trained checkpoint to evaluate test performance
    - start the container with a local bind mount
-       ```shell
-       sudo docker container run --rm -it --gpus all --mount type=bind,source=/tmp/docker_experiment_output,target=/experiments --name deep_classiflie_explore deep_classiflie:v0.1.3 
-       ```
+     ```shell
+     sudo docker container run --rm -it --gpus all --mount type=bind,source=/tmp/docker_experiment_output,target=/experiments --name deep_classiflie_explore deep_classiflie:v0.1.3 
+     ```
     - update the docker_test_only.yaml file, passing the desired inference path (e.g. /experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt)
-        ```shell
-        vi configs/docker_test_only.yaml
-        ...
-        inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
-        ...
+      ```shell
+      vi configs/docker_test_only.yaml
+      ...
+      inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
+      ...
+      ```
     - evaluate on test set
       ```shell
       conda run -n deep_classiflie python deep_classiflie.py --config /home/deep_classiflie/repos/deep_classiflie/configs/docker_test_only.yaml
@@ -466,6 +467,7 @@ As of writing (2020.10.11), Docker Compose does not fully support GPU provisioni
         ...
         inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
         ...
+      ```
     - add tweets or statements to do inference/interpretation on as desired by modifying /home/deep_classiflie/datasets/explore_pred_interpretations.json
     - generate predictions
       ```shell 
