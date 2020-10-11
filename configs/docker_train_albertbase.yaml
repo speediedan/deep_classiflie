@@ -1,0 +1,20 @@
+experiment:
+  db_functionality_enabled: False
+  debug:
+    debug_enabled: True
+    use_debug_dataset: False
+  dirs:
+    experiments_base_dir: "/experiments" # defaults to {base_dir}/experiments
+    tmp_data_dir: "/home/deep_classiflie/datasets/dc_dataset_collection" # defaults to {raw_data_dir}/temp/{constants.APP_NAME}
+data_source:
+  skip_db_refresh: True
+trainer:
+  # restart_training_ckpt: "/experiments/deep_classiflie/checkpoints/20200826121309/checkpoint-0.6039-11-1236.pt"
+  dump_model_thaw_sched_only: False
+  label_smoothing_enabled: True
+  # histogram_vars: ['classifier.weight', 'ctxt_embed.weight', 'albert.pooler.weight']
+  fine_tune_scheduler:
+    thaw_schedule: "DeepClassiflie_thaw_schedule.yaml"
+  earlystopping:
+    patience: 4
+    monitor_metric: "val_loss"

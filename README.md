@@ -16,6 +16,7 @@
 - [Configuration](#configuration)
 - [Further Research](#further-research)
 - [Model Replication](#model-replication)
+- [Model Replication and Exploration w/ Docker](#model-replication-and-exploration-with-docker)
 - [Caveats](#caveats)
 - [Citing Deep Classiflie](#citing-deep-classiflie)
 - [References and Notes](#references-and-notes)
@@ -265,7 +266,7 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
     ```
 2. install [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/download.html#anaconda-or-miniconda) if necessary. Then create and activate deep_classiflie virtual env:
     ```shell
-    conda env create -f ./deep_classiflie/utils/deep_classiflie.yml
+    conda env create -f ./deep_classiflie/assets/deep_classiflie.yml
     conda activate deep_classiflie
     ```
 3. clone captum and HuggingFace's transformers repos. Install transformers binaries.:
@@ -428,6 +429,66 @@ N.B. before you begin, the core external dependency is admin access to a mariadb
 </details>
 
 ---
+
+### Model Replication and Exploration with Docker
+<details><summary markdown="span"><strong>Instructions</strong>
+</summary>
+
+
+<br/>
+As of writing (2020.10.11), Docker Compose does not fully support GPU provisioning so using the docker cli w/ --gpus flag here.
+
+1. Pull image from docker hub
+    ```shell
+    sudo docker pull speediedan/deep_classiflie:v0.1.3
+    ```
+2. Recursively train model using latest dataset.
+    - create a local directory to bind mount and use for exploring experiment output and start training container
+      ```shell 
+      mkdir /tmp/docker_experiment_output
+      sudo docker container run --rm -d --gpus all --mount type=bind,source=/tmp/docker_experiment_output,target=/experiments --name deep_classiflie_train deep_classiflie:v0.1.3  \
+      conda run -n deep_classiflie python deep_classiflie.py --config /home/deep_classiflie/repos/deep_classiflie/configs/docker_train_albertbase.yaml 
+      ```
+    - run tensorboard container to follow training progress (~6 hrs on a single GPU)
+      ```
+      sudo docker container run --rm -d --gpus all --mount type=bind,source=/tmp/docker_experiment_output,target=/experiments -p 6006:6006 --workdir /experiments/deep_classiflie/logs --name deep_classiflie_tb deep_classiflie:v0.1.3 conda run -n deep_classiflie tensorboard --host 0.0.0.0 --logdir=/experiments/deep_classiflie/logs --reload_multifile=true
+      ```
+3. Use a trained checkpoint to evaluate test performance
+   - start the container with a local bind mount
+       ```shell
+       sudo docker container run --rm -it --gpus all --mount type=bind,source=/tmp/docker_experiment_output,target=/experiments --name deep_classiflie_explore deep_classiflie:v0.1.3 
+       ```
+    - update the docker_test_only.yaml file, passing the desired inference path (e.g. /experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt)
+        ```shell
+        vi configs/docker_test_only.yaml
+        ...
+        inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
+        ...
+    - evaluate on test set
+      ```shell
+      conda run -n deep_classiflie python deep_classiflie.py --config /home/deep_classiflie/repos/deep_classiflie/configs/docker_test_only.yaml
+      ```
+4. Run custom predictions
+    - update model checkpoint used for predictions with the one you trained
+       ```shell
+        vi /home/deep_classiflie/repos/deep_classiflie/configs/docker_cust_predict.yaml
+        ...
+        inference_ckpt: "/experiments/deep_classiflie/checkpoints/20201010172113/checkpoint-0.5595-29-148590.pt"
+        ...
+    - add tweets or statements to do inference/interpretation on as desired by modifying /home/deep_classiflie/datasets/explore_pred_interpretations.json
+    - generate predictions
+      ```shell 
+      conda run -n deep_classiflie python deep_classiflie.py --config /home/deep_classiflie/repos/deep_classiflie/configs/docker_cust_predict.yaml --pred_inputs /home/deep_classiflie/datasets/explore_pred_interpretations.json
+      ```
+    - review prediction interpretation card in local host browser, 
+      ```shell 
+      chrome /tmp/docker_experiment_output/deep_classiflie/logs/20201011203013/inference_output/example_stmt_1_0.png
+      ```
+
+</details>
+
+---
+
 ### Caveats
 
 <ul class="fnum">
