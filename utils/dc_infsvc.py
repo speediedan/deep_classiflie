@@ -207,7 +207,9 @@ class DCInfSvc(object):
         max_retries = self.config.experiment.infsvc.max_retries
         while True:
             cid_json = cid_json.replace('\n', '')
-            r = requests.post(endpoint, headers=headers, data=cid_json)
+            r = requests.post(endpoint, headers=headers, data=cid_json,
+                              timeout=(self.config.experiment.infsvc.request_timeouts.connect,
+                                       self.config.experiment.infsvc.request_timeouts.read))
             if r.ok:
                 return r
             else:
@@ -238,16 +240,18 @@ class DCInfSvc(object):
         time.sleep(10)
         r_start = time.clock()
         try:
-            _ = requests.get(f'{constants.PINATA_GATEWAY_GET_ENDPOINT}/{self.latest_pinned_cid}')
+            _ = requests.get(f'{constants.PINATA_GATEWAY_GET_ENDPOINT}/{self.latest_pinned_cid}',
+                             timeout=(self.config.experiment.infsvc.request_timeouts.connect,
+                                      self.config.experiment.infsvc.request_timeouts.read))
             r_duration = time.clock() - r_start
             logger.info(f'Time to retrieve latest cid ({self.latest_pinned_cid}): {round(r_duration, 2)} seconds.')
         except requests.exceptions.RequestException as e:
             logger.warning(f'Encountered the following error fetching latest cid: {e}')
 
-
-    @staticmethod
-    def unpin_cid(target_cid: str, headers: Dict) -> bool:
-        r = requests.delete(f'{constants.PINATA_UNPINJSON_ENDPOINT}/{target_cid}', headers=headers)
+    def unpin_cid(self, target_cid: str, headers: Dict) -> bool:
+        r = requests.delete(f'{constants.PINATA_UNPINJSON_ENDPOINT}/{target_cid}', headers=headers,
+                            timeout=(self.config.experiment.infsvc.request_timeouts.connect,
+                                     self.config.experiment.infsvc.request_timeouts.read))
         if r.status_code == 200:
             logger.info(f'Unpinned previous cid: {target_cid}')
             return True
@@ -268,7 +272,7 @@ class DCInfSvc(object):
             self.patch_dns(pinned_tup[1])
             self.latest_pinned_cid = pinned_tup[1]
             if rm_previous and (current_cid[0] != pinned_tup[1]):
-                return DCInfSvc.unpin_cid(current_cid[0], headers)
+                return self.unpin_cid(current_cid[0], headers)
             return True
         else:
             logger.warning(f'Unexpected pinning results. Pinned {pin_cnt} items, with {pin_error} errors detected '
@@ -281,7 +285,9 @@ class DCInfSvc(object):
         headers = {"Authorization": f"Bearer {self.svc_auth['cloudflare'][0]}", "Content-Type": "application/json"}
         data = {"type": "TXT", "name": f"_dnslink.{constants.DC_PREDICTIONS_SUBDOMAIN}",
                 "content": f"dnslink=/ipfs/{new_hash}"}
-        r = requests.patch(f'{constants.CLOUDFLARE_DC_DNS_ENDPOINT}/{dns_path}', headers=headers, data=to_json(data))
+        r = requests.patch(f'{constants.CLOUDFLARE_DC_DNS_ENDPOINT}/{dns_path}', headers=headers, data=to_json(data),
+                           timeout=(self.config.experiment.infsvc.request_timeouts.connect,
+                                    self.config.experiment.infsvc.request_timeouts.read))
         r = r.json()
         logger.info(f'DNS patch succeeded, now serving predictions using the hash: {new_hash}') if r['success'] else \
             logger.warning(f'dns patch did not succeed, existing hash will be unpinned and may be gc\'d')
