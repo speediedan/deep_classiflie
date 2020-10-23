@@ -138,7 +138,7 @@ async function add_table_func() {
         { data: 'fn_ratio', render: dec_fmt},
         { data: 't_date',
           render: function ( data, type, row ) {
-            if ( type === 'display' || type === 'filter' ) {
+            if ( type === 'display' || type === 'filter' || type === 'sort' ) {
                 var d;
                 if (date_patt.test(data))  {
                   d = new Date( data );
