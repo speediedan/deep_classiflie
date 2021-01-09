@@ -8,6 +8,7 @@ experiment:
     enabled: True
     publish: True
     batch_mode: False
+    twitter_enabled: False
     skip_db_refresh: False
 # data_source:
   # db_conf must be explictly specified only in dev mode or if db_conf is in a non-default location

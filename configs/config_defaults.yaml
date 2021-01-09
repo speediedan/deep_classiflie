@@ -23,6 +23,7 @@ experiment:
     thread_latency: 900
     publish: False
     skip_db_refresh: False
+    twitter_enabled: True
     # purge_intermediate_reports: False
     non_twitter_update_freq_multiple: 5
     dcbot_poll_interval: 180

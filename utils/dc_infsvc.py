@@ -67,10 +67,12 @@ class DCInfSvc(object):
     def poll_and_analyze(self) -> NoReturn:
         last_nt_update_cnt = 0
         update_nt = True
+        twitter_enabled = self.config.experiment.infsvc.twitter_enabled
         while True:
             if self.non_twitter_updatefreq and update_nt:
                 update_nt, last_nt_update_cnt = self.update_non_twit_sources()
-            refresh_db(self.config.data_source.db_conf, self.cnxp, self.infsvc_dbconf, self.svc_auth['twitter'])
+            if twitter_enabled:
+                refresh_db(self.config.data_source.db_conf, self.cnxp, self.infsvc_dbconf, self.svc_auth['twitter'])
             self.publish_flow()
             time.sleep(self.config.experiment.infsvc.dcbot_poll_interval)
             if self.non_twitter_updatefreq:
