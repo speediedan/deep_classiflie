@@ -7,7 +7,7 @@ markdown: kramdown
 kramdown:
   parse_block_html: true
 theme: jekyll-theme-cayman
-google_analytics: UA-26562413-2
+google_analytics: G-H9RY59H33Y
 show_downloads: false
 about_url: index.html
 pred_explorer_url: pred_explorer.html
